@@ -47,7 +47,7 @@ FindPos := function(list, x)
 	od;
 end;
 
-Subgroupladder := function(G)
+SubgroupLadder := function(G)
 	local
 		orb,
 		i,
