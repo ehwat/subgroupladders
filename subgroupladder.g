@@ -73,10 +73,13 @@ SubgroupLadder := function(G)
 
 	output := [];
 
+	if (YoungGroupFromPartition(orb) <> G) then
+		output := [G];
+	fi;
+
 	partition := List(orb, Length);
 	mapping := List([1..n], x -> FindPos(orb, x));
 	ladder := [[List(partition), List(mapping)]];
-
 
 	while (Length(partition) <> 1 or partition[1] < n) do
 		if (Length(partition) = 1 and partition[1] < n) then
