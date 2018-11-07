@@ -64,7 +64,7 @@ Subgroupladder := function(G)
 		mapping,
 		output,
 		partition;
-		
+
 
 	if (not IsPermGroup(G)) then
 		ErrorNoReturn("the argument must be a permutation group!\n");
@@ -87,7 +87,7 @@ Subgroupladder := function(G)
 			mapping[Position(mapping, 0)] := 1;
 			partition[1] := partition[1] + 1;
 			Add(ladder, [List(partition, id), List(mapping, id)]);
-		else 
+		else
 			if (partition[2] = 1) then
 				Remove(partition, 2);
 				for i in [1..n] do
@@ -97,7 +97,7 @@ Subgroupladder := function(G)
 				od;
 				partition[1] := partition[1] + 1;
 				Add(ladder, [List(partition, id), List(mapping, id)]);
-			else 
+			else
 				mapping[Position(mapping, 2)] := Length(partition)+1;
 				partition[2] := partition[2] - 1;
 				Add(partition, 1);
@@ -114,8 +114,6 @@ Subgroupladder := function(G)
 	for pair in ladder do
 		k := Length(pair[1]);
 		mapping := pair[2];
-		directfactors := [];
-		generators := [];
 		Add(output, YoungGroupFromPartition(List([1..k], i -> Filtered([1..n], x -> i = mapping[x]))));
 	od;
 
