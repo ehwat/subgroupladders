@@ -47,10 +47,6 @@ FindPos := function(list, x)
 	od;
 end;
 
-id := function(x)
-	return x;
-end;
-
 Subgroupladder := function(G)
 	local
 		orb,
@@ -79,14 +75,14 @@ Subgroupladder := function(G)
 
 	partition := List(orb, Length);
 	mapping := List([1..n], x -> FindPos(orb, x));
-	ladder := [[List(partition, id), List(mapping, id)]];
+	ladder := [[List(partition), List(mapping)]];
 
 
 	while (Length(partition) <> 1 or partition[1] < n) do
 		if (Length(partition) = 1 and partition[1] < n) then
 			mapping[Position(mapping, 0)] := 1;
 			partition[1] := partition[1] + 1;
-			Add(ladder, [List(partition, id), List(mapping, id)]);
+			Add(ladder, [List(partition), List(mapping)]);
 		else
 			if (partition[2] = 1) then
 				Remove(partition, 2);
@@ -96,17 +92,17 @@ Subgroupladder := function(G)
 					fi;
 				od;
 				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition, id), List(mapping, id)]);
+				Add(ladder, [List(partition), List(mapping)]);
 			else
 				mapping[Position(mapping, 2)] := Length(partition)+1;
 				partition[2] := partition[2] - 1;
 				Add(partition, 1);
-				Add(ladder, [List(partition, id), List(mapping, id)]);
+				Add(ladder, [List(partition), List(mapping)]);
 
 				mapping[Position(mapping, Length(partition))] := 1;
 				Remove(partition);
 				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition, id), List(mapping, id)]);
+				Add(ladder, [List(partition), List(mapping)]);
 			fi;
 		fi;
 	od;
@@ -119,3 +115,5 @@ Subgroupladder := function(G)
 
 	return output;
 end;
+
+# vim: set noet ts=4:
