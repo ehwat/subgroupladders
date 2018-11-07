@@ -1,3 +1,42 @@
+YoungGroupFromPartition := function(part)
+	local
+		i,
+		P,
+		G,
+		grps,
+		olds,
+		news,
+		perms,
+		info,
+		generators;
+
+	grps := [];
+	olds := [];
+	news := [];
+	perms := [];
+	generators := [];
+
+	for i in part do
+		G := SymmetricGroup(i);
+		Append(generators, GeneratorsOfGroup(G));
+		Add(grps, G);
+		Add(olds, i);
+		Add(news, i);
+		Add(perms, ());
+	od;
+
+	P := Group(generators);
+	info := rec( groups := grps,
+	             olds := olds,
+				 news := news,
+				 perms := perms,
+				 embeddings := [],
+				 projections := [] );
+	SetDirectProductInfo(P, info);
+
+	return P;
+end;
+
 FindPos := function(list, x)
 	local n, i;
 	n := Length(list);
@@ -77,10 +116,7 @@ Subgroupladder := function(G)
 		mapping := pair[2];
 		directfactors := [];
 		generators := [];
-		for i in [1..k] do
-			Append(generators, GeneratorsOfGroup(SymmetricGroup(Filtered([1..n], x -> i = mapping[x]))));
-		od;
-		Add(output, Group(generators));
+		Add(output, YoungGroupFromPartition(List([1..k], i -> Filtered([1..n], x -> i = mapping[x]))));
 	od;
 
 	return output;
