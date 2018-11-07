@@ -21,6 +21,7 @@ Subgroupladder := function(G)
 		pair,
 		ladder,
 		directfactors,
+		generators,
 		mapping,
 		output,
 		partition;
@@ -75,10 +76,11 @@ Subgroupladder := function(G)
 		k := Length(pair[1]);
 		mapping := pair[2];
 		directfactors := [];
+		generators := [];
 		for i in [1..k] do
-			Add(directfactors, SymmetricGroup(Filtered([1..n], x -> i = mapping[x])));
+			Append(generators, GeneratorsOfGroup(SymmetricGroup(Filtered([1..n], x -> i = mapping[x]))));
 		od;
-		Add(output, DirectProduct(directfactors));
+		Add(output, Group(generators));
 	od;
 
 	return output;
