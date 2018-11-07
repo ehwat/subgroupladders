@@ -28,10 +28,10 @@ YoungGroupFromPartition := function(part)
 	P := Group(generators);
 	info := rec( groups := grps,
 	             olds := olds,
-				 news := news,
-				 perms := perms,
-				 embeddings := [],
-				 projections := [] );
+	             news := news,
+	             perms := perms,
+	             embeddings := [],
+	             projections := [] );
 	SetDirectProductInfo(P, info);
 
 	return P;
