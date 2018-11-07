@@ -68,7 +68,7 @@ SubgroupLadder := function(G)
 
 	n := LargestMovedPoint(G);
 
-	orb := List(Orbits(G, [1..n]), x -> x);
+	orb := List(Orbits(G, [1..n]));
 	SortBy(orb, x->-Length(x));
 
 	output := [];
