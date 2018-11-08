@@ -4,6 +4,9 @@
 # Declarations
 #
 
+#! @Chapter subgroup-ladders
+#! @Section subgroup-ladders
+
 #! @Description
 #! Given a list of lists <A>part</A> of positive integers, this will compute 
 #! the Young #! subgroup corresponding to this partition.
