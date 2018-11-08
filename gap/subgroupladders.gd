@@ -7,6 +7,7 @@
 #! @Description
 #! Given a list of lists <A>part</A> of positive integers, this will compute 
 #! the Young subgroup corresponding to this partition.
+#! This function does not check whether the supplied lists are actually disjoint. 
 #! @Returns a group
 #! @Arguments part
 #! @ChapterInfo subgroupladders, subgroupladders
