@@ -9,7 +9,7 @@
 
 #! @Description
 #! Given a list of lists <A>part</A> of positive integers, this will compute 
-#! the Young #! subgroup corresponding to this partition.
+#! the Young subgroup corresponding to this partition.
 #! @Returns a group
 #! @Arguments part
 DeclareGlobalFunction( "YoungGroupFromPartition" );
