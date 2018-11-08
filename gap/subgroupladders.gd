@@ -4,14 +4,12 @@
 # Declarations
 #
 
-#! @Chapter subgroup-ladders
-#! @Section subgroup-ladders
-
 #! @Description
 #! Given a list of lists <A>part</A> of positive integers, this will compute 
 #! the Young subgroup corresponding to this partition.
 #! @Returns a group
 #! @Arguments part
+#! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "YoungGroupFromPartition" );
 #! @Description
 #! Given a permutation group <A>G</A>, this will compute a subgroup ladder
@@ -26,4 +24,5 @@ DeclareGlobalFunction( "YoungGroupFromPartition" );
 #! At this step, the index may be larger than the degree.
 #! @Returns a list of groups
 #! @Arguments G
+#! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadder");
