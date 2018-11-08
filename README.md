@@ -47,6 +47,7 @@ install and use it, resp. where to find out more
 ## Documentation
 
 The documentation of this package is available as [HTML](https://hrnz.li/subgroupladders) and as a [PDF](https://hrnz.li/subgroupladders/manual.pdf).
+It can also be generated locally with `gap makedoc.g`.
 
 ## Contact
 
