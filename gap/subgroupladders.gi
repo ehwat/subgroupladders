@@ -1,4 +1,12 @@
-YoungGroupFromPartition := function(part)
+#
+# subgroupladders: This package provides an algorithm that computes a subgroup ladder from a permutation group up to the parent symmetric group.
+#
+# Implementations
+#
+
+
+InstallGlobalFunction( YoungGroupFromPartition,
+function(part)
 	local
 		i,
 		P,
@@ -35,19 +43,11 @@ YoungGroupFromPartition := function(part)
 	SetDirectProductInfo(P, info);
 
 	return P;
-end;
+end);
 
-FindPos := function(list, x)
-	local n, i;
-	n := Length(list);
-	for i in [1..n] do
-		if x in list[i] then
-			return i;
-		fi;
-	od;
-end;
 
-SubgroupLadder := function(G)
+InstallGlobalFunction( SubgroupLadder,
+function(G)
 	local
 		orb,
 		i,
@@ -59,8 +59,18 @@ SubgroupLadder := function(G)
 		generators,
 		mapping,
 		output,
-		partition;
+		partition,
+		FindPos;
 
+	FindPos := function(list, x)
+		local n, i;
+		n := Length(list);
+		for i in [1..n] do
+			if x in list[i] then
+				return i;
+			fi;
+		od;
+	end;
 
 	if (not IsPermGroup(G)) then
 		ErrorNoReturn("the argument must be a permutation group!\n");
@@ -117,6 +127,6 @@ SubgroupLadder := function(G)
 	od;
 
 	return output;
-end;
+end);
 
 # vim: set noet ts=4:
