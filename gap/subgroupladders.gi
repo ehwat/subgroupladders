@@ -12,15 +12,15 @@
 InstallGlobalFunction( YoungGroupFromPartition,
 function(part)
 	local
-		p,				# loop variable over the partition.
-		Y,				# the Young subgroup formed over the partition.
-		generators,		# the generators of Y.
-		G,				# the symmetric group on p.
-		grps,			# record entry of info.
-		olds,			# record entry of info.
-		news,			# record entry of info.
-		perms,			# record entry of info.
-		info;			# record for the DirectProductInfo of Y.
+		p,           # loop variable over the partition.
+		Y,           # the Young subgroup formed over the partition.
+		generators,  # the generators of Y.
+		G,           # the symmetric group on p.
+		grps,        # record entry of info.
+		olds,        # record entry of info.
+		news,        # record entry of info.
+		perms,       # record entry of info.
+		info;        # record for the DirectProductInfo of Y.
 
 
 	# Initialize the variables.
@@ -57,18 +57,18 @@ end);
 InstallGlobalFunction( SubgroupLadder,
 function(G)
 	local
-		orb, 			# the orbits of the permutation group G
-		n,				# largest moved point of G
-		i,				# loop variable 
-		k,				# size of current partition
-		ladder,			# the ladder is a list containing pairs [partition, mapping]
-		partition,		# partition is a list of positive integers (a_1, ..., a_k) such that
-						# a_1 is the biggest integer of the list.
-		mapping, 		# mapping is a list of positive integers (m_1, ..., m_n) such that
-						# 1 <= m_i <= k for all i.
-		pair,			# a entry of the ladder [partition, mapping] used to construct a young subgroup
-		output,			# a list of groups forming the ladder of G into S_n
-		FindPos;		# a local function
+		orb,          # the orbits of the permutation group G
+		n,            # largest moved point of G
+		i,            # loop variable 
+		k,            # size of current partition
+		ladder,       # the ladder is a list containing pairs [partition, mapping]
+		partition,    # partition is a list of positive integers (a_1, ..., a_k) such that
+		              # a_1 is the biggest integer of the list.
+		mapping,      # mapping is a list of positive integers (m_1, ..., m_n) such that
+		              # 1 <= m_i <= k for all i.
+		pair,         # a entry of the ladder [partition, mapping] used to construct a young subgroup
+		output,       # a list of groups forming the ladder of G into S_n
+		FindPos;      # a local function
 
 	#
 	# l = [l_1, ..., l_n] is a list of lists.
@@ -78,8 +78,8 @@ function(G)
 	#
 	FindPos := function(l, x)
 		local 
-			n, 			# length of l
-			i;			# loop variable over l
+			n,       # length of l
+			i;       # loop variable over l
 		n := Length(l);
 		for i in [1..n] do
 			if x in l[i] then
