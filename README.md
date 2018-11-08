@@ -4,12 +4,12 @@ This package provides an algorithm that computes a subgroup ladder from a permut
 The algorithm was described by Bernd Schmalz in [1, Theorem 3.1.1].
 
 Solutions of some problems in group theory can relatively easy be transferred to a sub- or supergroup if the index is small.
-Let G be a permutation group on the set {1,…,n}.
-So one might try to find a series of subgroups G = H₀,…,Hₖ = Sₙ of the symmetric group Sₙsuch that Hᵢ₋₁ is a subgroup of Hᵢ for every i and transfer the solution of a problem for the symmetric group step by step to G.
+Let G be a permutation group on the set {1,...,n}.
+So one might try to find a series of subgroups G = H_0,...,H_k = S_n of the symmetric group S_nsuch that H_{i-1} is a subgroup of H_i for every i and transfer the solution of a problem for the symmetric group step by step to G.
 
 Sometimes it is not possible to find such a series with small indices between consecutive subgroups.
 This is where subgroup ladders may make sense:
-A subgroup ladder is series of subgroups G = H₀,…,Hₖ = Sₙ of the symmetric group such that for every 1≤i≤k, Hᵢ is a subgroup of Hᵢ₋₁ or Hᵢ₋₁ is a subgroup of Hᵢ.
+A subgroup ladder is series of subgroups G = H_0,...,H_k = S_n of the symmetric group such that for every 1<=i<=k, H_i is a subgroup of H_{i-1} or H_{i-1} is a subgroup of H_i.
 So we sometimes go up to a larger group in order to keep the indices small.
 
 If G is a Young subgroup of S_n, the algorithm in this repository can find a subgroup ladder of G such that the indices are at most the degree of the permutation group.
@@ -47,6 +47,7 @@ install and use it, resp. where to find out more
 ## Documentation
 
 The documentation of this package is available as [HTML](https://hrnz.li/subgroupladders) and as a [PDF](https://hrnz.li/subgroupladders/manual.pdf).
+It can also be generated locally with `gap makedoc.g`.
 
 ## Contact
 
