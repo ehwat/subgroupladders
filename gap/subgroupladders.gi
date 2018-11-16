@@ -73,27 +73,8 @@ function(G)
 		mapping,      # mapping is a list of positive integers (m_1, ..., m_n) such that
 		              # 1 <= m_i <= k for all i.
 		pair,         # a entry of the ladder [partition, mapping] used to construct a young subgroup
-		output,       # a list of groups forming the ladder of G into S_n
-		FindPos;      # a local function
+		output;       # a list of groups forming the ladder of G into S_n
 
-	##
-	## l = [l_1, ..., l_n] is a list of lists.
-	## Check wether x in contained in some list l_i of l.
-	## If it is, return the smallest integer i such that x in l_i.
-	## Otherwise return 0.
-	##
-	FindPos := function(l, x)
-		local 
-			n,       # length of l
-			i;       # loop variable over l
-		n := Length(l);
-		for i in [1..n] do
-			if x in l[i] then
-				return i;
-			fi;
-		od;
-		return 0;
-	end;
 
 	# Check if G is a permuatation group
 	if (not IsPermGroup(G)) then
@@ -113,7 +94,7 @@ function(G)
 	fi;
 
 	partition := List(orb, Length);
-	mapping := List([1..n], x -> FindPos(orb, x));
+	mapping := List([1..n], x -> PositionProperty([1..Length(orb)], i -> x in orb[i]));
 	ladder := [[List(partition), List(mapping)]];
 
 	# Start the iterative construction of the ladder
