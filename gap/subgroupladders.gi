@@ -5,9 +5,9 @@
 #
 
 #
-# Generate a Young subgroup of a partition part = (p_1, ..., p_k) of some positive integer n.
-# Every p_i is a list of positive integers such that the union of the p_i is disjoint and equals {1,...n}.
-# The Young subgroup is then the direct product of symmetric groups on the p_i.
+# Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
+# Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
+# The Young subgroup is then the direct product of the symmetric groups on the p_i.
 #
 InstallGlobalFunction( YoungGroupFromPartition,
 function(part)
@@ -53,7 +53,13 @@ function(part)
 	return Y;
 end);
 
-
+## Given a permutation group G, this will compute a subgroup ladder
+## from G up to the parent symmetric group S_n.
+## If G is a Young subgroup of S_n, we can guarantee that all 
+## the indices are at most the degree n of the permutation group. 
+## Otherwise, we will at first embed G into the Young subgroup 
+## corresponding to the orbits of G. 
+## At this step, the index may be larger than the degree.
 InstallGlobalFunction( SubgroupLadder,
 function(G)
 	local
@@ -70,12 +76,12 @@ function(G)
 		output,       # a list of groups forming the ladder of G into S_n
 		FindPos;      # a local function
 
-	#
-	# l = [l_1, ..., l_n] is a list of lists.
-	# Check wether x in contained in some list l_i of l.
-	# If it is, return the smallest integer i such that x in l_i.
-	# Otherwise return 0.
-	#
+	##
+	## l = [l_1, ..., l_n] is a list of lists.
+	## Check wether x in contained in some list l_i of l.
+	## If it is, return the smallest integer i such that x in l_i.
+	## Otherwise return 0.
+	##
 	FindPos := function(l, x)
 		local 
 			n,       # length of l
