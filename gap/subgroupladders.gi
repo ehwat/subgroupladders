@@ -65,7 +65,7 @@ function(G)
 	local
 		orb,          # the orbits of the permutation group G
 		n,            # largest moved point of G
-		i,            # loop variable 
+		i,            # loop variable
 		k,            # size of current partition
 		ladder,       # the ladder is a list containing pairs [partition, mapping]
 		partition,    # partition is a list of positive integers (a_1, ..., a_k) such that
@@ -100,7 +100,7 @@ function(G)
 	# Start the iterative construction of the ladder
 	while (Length(partition) <> 1 or partition[1] < n) do
 		# This is the case where partition = (a) and the current young subgroup is S_{a}.
-		# Add the group S_{a+1} to the ladder 
+		# Add the group S_{a+1} to the ladder
 		# and continue iteration with this group.
 		if (Length(partition) = 1) then
 			mapping[Position(mapping, 0)] := 1;
@@ -121,7 +121,7 @@ function(G)
 				Add(ladder, [List(partition), List(mapping)]);
 			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 > 1.
 			# First add the young subgroup with partition (a_1, 1, a_2 - 1, a_3, ..., a_k).
-			# Then add the young subgroup with partition (a_1 + 1, a_2 - 1, a_3, ..., a_k)	
+			# Then add the young subgroup with partition (a_1 + 1, a_2 - 1, a_3, ..., a_k)
 			# and continue iteration with this group.
 			else
 				mapping[Position(mapping, 2)] := Length(partition)+1;
