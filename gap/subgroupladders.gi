@@ -54,14 +54,16 @@ function(part)
 end);
 
 ## Given a young group G, this will compute a subgroup ladder
-## from G up to the parent symmetric group S_n.
-## We can guarantee that all
+## from G up to the symmetric group of degree n.
+## If the second argument is ommited, the largest moved point of G will be
+## used. We can guarantee that all
 ## the indices are at most the degree n of the permutation group.
 InstallGlobalFunction( SubgroupLadder,
-function(G)
+function(arg)
 	local
+		G,            # the provided young subgroup we will start the construction from
 		orb,          # the orbits of the permutation group G
-		n,            # largest moved point of G
+		n,            # degree of the parent symmetric group
 		i,            # loop variable
 		k,            # size of current partition
 		ladder,       # the ladder is a list containing pairs [partition, mapping]
@@ -72,23 +74,37 @@ function(G)
 		pair,         # a entry of the ladder [partition, mapping] used to construct a young subgroup
 		output;       # a list of groups forming the ladder of G into S_n
 
+	if (Length(arg) <> 1 and Length(arg) <> 2) then
+		ErrorNoReturn("usage: SubgroupLadder(<G>, <n>), where <G> is a young subgroup and n is the degree of the parent symmetric group");
+	fi;
+
+	if (Length(arg) = 2) then
+		G := arg[1];
+		n := arg[2];
+	else
+		G := arg[1];
+		n := LargestMovedPoint(G);
+	fi;
+
 
 	# Check if G is a permuatation group
 	if (not IsPermGroup(G)) then
-		ErrorNoReturn("the argument must be a permutation group!\n");
+		ErrorNoReturn("the first argument must be a permutation group!\n");
 	fi;
 
 	# Initialize the variables
-	n := LargestMovedPoint(G);
-
 	orb := List(Orbits(G, [1..n]));
 	SortBy(orb, x->-Length(x));
 
 	output := [];
 
 	if (YoungGroupFromPartition(orb) <> G) then
-		ErrorNoReturn("the argument must be a young subgroup!\n");
+		ErrorNoReturn("the first argument must be a young subgroup!\n");
 	fi;
+
+	if (n < LargestMovedPoint(G)) then
+		ErrorNoReturn("degree of desired parent symmetric group is smaller than the degree of G!\n");
+	fi
 
 	partition := List(orb, Length);
 	mapping := List([1..n], x -> PositionProperty([1..Length(orb)], i -> x in orb[i]));
