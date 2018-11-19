@@ -53,13 +53,10 @@ function(part)
 	return Y;
 end);
 
-## Given a permutation group G, this will compute a subgroup ladder
+## Given a young group G, this will compute a subgroup ladder
 ## from G up to the parent symmetric group S_n.
-## If G is a Young subgroup of S_n, we can guarantee that all 
-## the indices are at most the degree n of the permutation group. 
-## Otherwise, we will at first embed G into the Young subgroup 
-## corresponding to the orbits of G. 
-## At this step, the index may be larger than the degree.
+## We can guarantee that all
+## the indices are at most the degree n of the permutation group.
 InstallGlobalFunction( SubgroupLadder,
 function(G)
 	local
@@ -90,7 +87,7 @@ function(G)
 	output := [];
 
 	if (YoungGroupFromPartition(orb) <> G) then
-		output := [G];
+		ErrorNoReturn("the argument must be a young subgroup!\n");
 	fi;
 
 	partition := List(orb, Length);
