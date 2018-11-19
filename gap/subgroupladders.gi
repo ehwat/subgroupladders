@@ -104,7 +104,7 @@ function(arg)
 
 	if (n < LargestMovedPoint(G)) then
 		ErrorNoReturn("degree of desired parent symmetric group is smaller than the degree of G!\n");
-	fi
+	fi;
 
 	partition := List(orb, Length);
 	mapping := List([1..n], x -> PositionProperty([1..Length(orb)], i -> x in orb[i]));
