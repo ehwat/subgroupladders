@@ -75,7 +75,7 @@ function(arg)
 		output;       # a list of groups forming the ladder of G into S_n
 
 	if (Length(arg) <> 1 and Length(arg) <> 2) then
-		ErrorNoReturn("usage: SubgroupLadder(<G>, <n>), where <G> is a young subgroup and n is the degree of the parent symmetric group");
+		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>]), where <G> is a young subgroup of the symmetric group on <n> letters\n");
 	fi;
 
 	if (Length(arg) = 2) then
