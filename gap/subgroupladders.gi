@@ -8,8 +8,19 @@
 # Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
 # Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
 # The Young subgroup is then the direct product of the symmetric groups on the p_i.
-#
 InstallGlobalFunction( YoungGroupFromPartition,
+function(part)
+	if (IsDuplicateFree(Concatenation(part))) then
+		return YoungGroupFromPartitionNC(part);
+	fi;
+	ErrorNoReturn("The Argument must me a list of disjoint lists!\n");
+end);
+
+
+# Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
+# Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
+# The Young subgroup is then the direct product of the symmetric groups on the p_i.
+InstallGlobalFunction( YoungGroupFromPartitionNC,
 function(part)
 	local
 		p,           # loop variable over the partition.
