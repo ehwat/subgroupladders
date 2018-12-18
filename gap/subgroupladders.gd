@@ -32,4 +32,6 @@ DeclareGlobalFunction( "YoungGroupFromPartitionNC" );
 #! @Returns a list of groups
 #! @Arguments G, [n]
 #! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
+
 DeclareGlobalFunction( "SubgroupLadder");

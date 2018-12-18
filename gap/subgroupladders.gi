@@ -69,7 +69,7 @@ end);
 ## If the second argument is ommited, the largest moved point of G will be
 ## used. We can guarantee that all
 ## the indices are at most the degree n of the permutation group.
-InstallGlobalFunction( SubgroupLadder,
+InstallGlobalFunction( SubgroupLadderForYoungGroup,
 function(arg)
 	local
 		G,            # the provided young subgroup we will start the construction from
@@ -170,5 +170,47 @@ function(arg)
 
 	return output;
 end);
+
+InstallGlobalFunction(SubgroupLadder, 
+function(arg)
+	local 
+		G,
+		n,
+		orbs,
+		gens,
+		subgroupladder,
+		o,
+		gensSo,
+		Y;
+
+	if (Length(arg) <> 1 and Length(arg) <> 2) then
+		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>]), where <G> is a intransitive subgroup of the symmetric group on <n> letters\n");
+	fi;
+
+	if (Length(arg) = 2) then
+		G := arg[1];
+		n := arg[2];
+	else
+		G := arg[1];
+		n := LargestMovedPoint(G);
+	fi;
+
+	orbs := List(Orbits(G));
+	gens := List(GeneratorsOfGroup(G));
+	subgroupladder := [G];
+
+	for o in orbs do 
+		gensSo := GeneratorsOfGroup(SymmetricGroup(o));
+		if not IsSubgroup(G, Group(gensSo)) then
+			Append(gens,gensSo);
+			Add(subgroupladder,Group(gens));
+		fi;
+	od;
+
+	Y := Remove(subgroupladder);
+	Append( subgroupladder, SubgroupLadderForYoungGroup(Y, n) );
+	return subgroupladder;
+end);
+
 
 # vim: set noet ts=4:
