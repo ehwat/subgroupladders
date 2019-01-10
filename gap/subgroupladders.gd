@@ -35,3 +35,4 @@ DeclareGlobalFunction( "YoungGroupFromPartitionNC" );
 DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
 
 DeclareGlobalFunction( "SubgroupLadder");
+DeclareGlobalFunction( "EmbeddingWreathProduct");
