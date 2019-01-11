@@ -221,62 +221,50 @@ RenamePerm := function(x, lambda)
 	return PermList(g);
 end;
 
-#
-# Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-# this function will compute an embedding into the wreath product of S_m 
-# with S_k where k is the size of a minimal non-trivial block system and m 
-# is the size of the blocks.
-# The output is [lambda, emb], where emb is the embedding and lambda is a list,
-# such that G and the image of G under emb are permutation isomorphic,
-# that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
-#
-InstallGlobalFunction( EmbeddingWreathProduct,
-function(G, Om)
+## Given a minimal non-trivial blocks system of an imprimitive permutation group,
+## this function will compute an embedding into the wreath product of S_m with S_k 
+## where k is the size of the minimal non-trivial block system and 
+## m is the size of the blocks.
+InstallGlobalFunction( EmbeddingWreathProductOp,
+function(B)
 	local
-		B,              # a minimal non-trivial blocks system.
-		k,              # size of blocks system B.
-		m,              # size of the blocks in B (they all have equal size).
-		W,              # the wreath product of S_m with S_k.
-		gens,           # the generators of G.
-		orb,            # the orbit object with schreier tree for B[1][1].
-		gi,             # a list of elements, such that B[i]^gi[i] = B[1].
-		i,              # loop variable for index in L.
-		o,              # loop variable for element in Omega.
-		lambda,         # the map which makes Wr a supergroup of G.
-		Wr,             # group W after renaming the points with lambda.
-		info;           # wreath product info of Wr.
-
-	if(not IsPermGroup(G)) then
-		ErrorNoReturn("G must be a permutation group");
-	fi;
-
-	# This method will return an error if G does not act transitively on Om.
-	B := Blocks(G, Om);
+		k,              # size of blocks system B
+		m,              # size of the blocks in B (they all have equal size)
+		W,              # the wreath product of S_m with S_k
+		basegens,       # generators of the base group of W, being (S_m)^k
+		hgens,          # generators of the top group
+		perms,          # list of permutation of integers
+		                # inducing the embedding of S_m into the copies in W
+		info;           # wreath product info of W
 
 	# Initialize all variables
 	k := Length(B);
 	m := Length(B[1]);
-	W := WreathProductImprimitiveAction(SymmetricGroup(B[1]),SymmetricGroup(k));
-	gens := GeneratorsOfGroup(G);
-	orb := Orb(gens,B[1][1],OnPoints,rec(schreier:=true, storenumbers:=true));
-	Enumerate(orb);
-	gi := List([1..k], i -> EvaluateWord( gens, TraceSchreierTreeForward(orb, Position(orb, B[i][1])) ));
 
-	lambda := [];
-	for o in Om do
-		i := PositionProperty(B, b -> o in b);
-		lambda[ Position(B[1], o^(gi[i]))+(i-1)*m] := o;
-	od;
+	# construct the wreath product info
+	basegens := Concatenation( List([1..k], i-> List(GeneratorsOfGroup(SymmetricGroup(B[i]))) ));
+	hgens := [Product([1..m], i -> CycleFromList(List([1..k], j->B[j][i])), ()), MappingPermListList(B[1],B[2])];
+	perms := List( [1..k], i-> MappingPermListList([1..m], B[i]) );
 
-	Wr := Group(List(GeneratorsOfGroup(W), x -> RenamePerm(x, lambda)));
-	info := ShallowCopy(WreathProductInfo(W));
-	info.basegens := List(info.basegens, x -> RenamePerm(x,lambda));
-	info.base := Group(info.basegens);
-	info.components := List(info.components, x -> List(x, y -> lambda[y]));
-	info.hgens := List(info.hgens, x -> RenamePerm(x, lambda));
-	info.perms := Concatenation( [()], List([2..k], i -> Product([1..m], j -> CycleFromList([B[1][j],lambda[j+m*(i-1)]]))));
-	SetWreathProductInfo(Wr, info);
-	return Wr;
+	W := Group(Concatenation(basegens, hgens));
+	info := rec(
+		I := SymmetricGroup(k),
+		alpha := IdentityMapping( SymmetricGroup(k) ),
+		base := Group(basegens),
+		basegens := basegens,
+		components := ShallowCopy(B),
+		degI := k,
+		embeddingType := NewType(
+			GeneralMappingsFamily(PermutationsFamily,PermutationsFamily),
+			IsEmbeddingImprimitiveWreathProductPermGroup),
+		embeddings := [],
+		groups := [SymmetricGroup(m), SymmetricGroup(k)],
+		hgens := hgens,
+		permimpr := true,
+		perms := perms
+	);
+	SetWreathProductInfo(W, info);
+	return W;
 end);
 
 # vim: set noet ts=4:
