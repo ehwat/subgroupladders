@@ -189,6 +189,7 @@ InstallGlobalFunction( SubgroupLadder,
 function(arg)
 	local
 		G,
+		H,
 		n,
 		i,
 		orbs,
@@ -217,6 +218,10 @@ function(arg)
 
 	#initialize directfactors as the list of the induced permutation groups on the orbits
 	directfactors := List(orbs, o->Group(List(gens, x->RestrictedPerm(x, o))));
+	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
+	if ( H <> G) then
+		Add(subgroupladder, H);
+	fi;
 
 	for i in [1..Length(orbs)] do
 		if (not IsPrimitive(directfactors[i], orbs[i])) then
@@ -224,7 +229,7 @@ function(arg)
 			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
 		fi;
 		gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
-		if (not IsSubgroup(G, Group(gensSo))) then
+		if (not IsSubgroup(directfactor[i], Group(gensSo))) then
 			directfactors[i] := SymmetricGroup(orbs[i]);
 			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
 		fi;
