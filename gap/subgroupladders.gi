@@ -229,7 +229,7 @@ function(arg)
 			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
 		fi;
 		gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
-		if (not IsSubgroup(directfactor[i], Group(gensSo))) then
+		if (not IsSubgroup(directfactors[i], Group(gensSo))) then
 			directfactors[i] := SymmetricGroup(orbs[i]);
 			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
 		fi;
