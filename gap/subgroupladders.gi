@@ -248,8 +248,8 @@ end;
 
 #
 # Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-# this function will compute an embedding into the wreath product of S_m 
-# with S_k where k is the size of a minimal non-trivial block system and m 
+# this function will compute an embedding into the wreath product of S_m
+# with S_k where k is the size of a minimal non-trivial block system and m
 # is the size of the blocks.
 # The output is [lambda, emb], where emb is the embedding and lambda is a list,
 # such that G and the image of G under emb are permutation isomorphic,
