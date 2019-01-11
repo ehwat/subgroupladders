@@ -197,7 +197,6 @@ function(arg)
 		directfactors,
 		o,
 		gensSo,
-		resgens,
 		Y;
 
 	if (Length(arg) <> 1 and Length(arg) <> 2) then
@@ -220,9 +219,8 @@ function(arg)
 	directfactors := List(orbs, o->Group(List(gens, x->RestrictedPerm(x, o))));
 
 	for i in [1..Length(orbs)] do
-		resgens := List(gens, x->RestrictedPerm(x, orbs[i]));
-		if (not IsPrimitive(Group(resgens), orbs[i])) then
-			directfactors[i] := EmbeddingWreathProduct(Group(resgens), orbs[i]);
+		if (not IsPrimitive(directfactors[i], orbs[i])) then
+			directfactors[i] := EmbeddingWreathProduct(directfactors[i], orbs[i]);
 			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
 		fi;
 		gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
