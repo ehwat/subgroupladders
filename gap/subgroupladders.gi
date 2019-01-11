@@ -4,10 +4,9 @@
 # Implementations
 #
 
-#
-# Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
-# Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
-# The Young subgroup is then the direct product of the symmetric groups on the p_i.
+## Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
+## Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
+## The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartition,
 function(part)
 	if (IsDuplicateFree(Concatenation(part))) then
@@ -16,14 +15,16 @@ function(part)
 	ErrorNoReturn("The Argument must me a list of disjoint lists!\n");
 end);
 
-# Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
-# Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
-# The Young subgroup is then the direct product of the symmetric groups on the p_i.
+## Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
+## Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
+## The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartitionNC,
 function( part )
 	return DirectProductPermGroupsWithoutRenamingNC(List(part, SymmetricGroup));
 end);
 
+## Constructs a direct product of a list <A>list</A> of permutation groups
+## with pairwise disjoint moved points such that all embeddings are canonical.
 InstallGlobalFunction( DirectProductPermGroupsWithoutRenaming,
 function( list )
 	if ForAny(list, G -> not IsPermGroup(G)) then
@@ -35,6 +36,8 @@ function( list )
 	return DirectProductPermGroupsWithoutRenamingNC( list );
 end);
 
+## Like the above, but does not tests whether the argument is a list of permutation
+## groups with pairwise disjoint moved points.
 InstallGlobalFunction( DirectProductPermGroupsWithoutRenamingNC,
 function( list )
 	local
@@ -185,6 +188,23 @@ function(arg)
 	return output;
 end);
 
+## Given a permutation group G, this will compute a subgroup ladder
+## from G up to the symmetric group of degree n.
+## If the second argument is ommited, the largest moved point of G will be
+## used.
+## A subgroup ladder is series of subgroups G = H_0,…,H_k = S_n of the
+## symmetric group such that for every 1 <= i <= k, H_i is a
+## subgroup of H_{i-1} or H_{i-1} is a subgroup of H_i.
+## This functions embeds G first into the direct product of the induced
+## permutation groups on the orbits. This then is embedded into the young group
+## corresponding to the orbits by iteratively replacing the restrictions
+## of G on each orbit first with  the wreath product of
+## symmetric groups corresponding to a minimal block system of
+## that transitive constituent and then with the symmetric group on that orbit.
+## Up to this step, the indices in the subgroup chain can be preetty high.
+## This chain is followed by a subgroup ladder from the young subgroup to
+## S_(n) is constructed with SubgroupLadderForYoungGroup, which produceds a
+## subgroup ladder with indiceds at most n.
 InstallGlobalFunction( SubgroupLadder,
 function(arg)
 	local
@@ -240,29 +260,25 @@ function(arg)
 	return subgroupladder;
 end);
 
-#
-# Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-# this function will compute an embedding into the wreath product of S_m
-# with S_k where k is the size of a minimal non-trivial block system and m
-# is the size of the blocks.
-# The output is [lambda, emb], where emb is the embedding and lambda is a list,
-# such that G and the image of G under emb are permutation isomorphic,
-# that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
-#
+## Given a permutation group G and a set Om, such that G acts imprimitive on Om,
+## this function will compute an embedding into the wreath product of S_m
+## with S_k where k is the size of a minimal non-trivial block system and m
+## is the size of the blocks.
+## The output is [lambda, emb], where emb is the embedding and lambda is a list,
+## such that G and the image of G under emb are permutation isomorphic,
+## that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
 InstallGlobalFunction( EmbeddingWreathProduct,
 function(G, Om)
 	return EmbeddingWreathProductOp(Blocks(G, Om));
 end);
 
-#
-# Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-# this function will compute an embedding into the wreath product of S_m
-# with S_k where k is the size of a minimal non-trivial block system and m
-# is the size of the blocks.
-# The output is [lambda, emb], where emb is the embedding and lambda is a list,
-# such that G and the image of G under emb are permutation isomorphic,
-# that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
-#
+## Given a permutation group G and a set Om, such that G acts imprimitive on Om,
+## this function will compute an embedding into the wreath product of S_m
+## with S_k where k is the size of a minimal non-trivial block system and m
+## is the size of the blocks.
+## The output is [lambda, emb], where emb is the embedding and lambda is a list,
+## such that G and the image of G under emb are permutation isomorphic,
+## that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
 InstallGlobalFunction( EmbeddingWreathProductOp,
 function(B)
 	local
