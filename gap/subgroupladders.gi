@@ -16,23 +16,37 @@ function(part)
 	ErrorNoReturn("The Argument must me a list of disjoint lists!\n");
 end);
 
-
 # Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
 # Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
 # The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartitionNC,
-function(part)
+function( part )
+	return DirectProductPermGroupsWithoutRenamingNC(List(part, SymmetricGroup));
+end);
+
+InstallGlobalFunction( DirectProductPermGroupsWithoutRenaming,
+function( list )
+	if ForAny(list, G -> not IsPermGroup(G)) then
+		ErrorNoReturn("At least one Group in the passed list is not a permutation group, aborting\n");
+	fi;
+	if not IsDuplicateFree(Concatenation(List(list, MovedPoints))) then
+		ErrorNoReturn("The sets of moved points of the passed groups are not pairwise disjoint, aborting\n");
+	fi;
+	return DirectProductPermGroupsWithoutRenamingNC( list );
+end);
+
+InstallGlobalFunction( DirectProductPermGroupsWithoutRenamingNC,
+function( list )
 	local
-		p,           # loop variable over the partition.
-		Y,           # the Young subgroup formed over the partition.
-		generators,  # the generators of Y.
-		G,           # the symmetric group on p.
+		G,           # loop variable over the direct factors
+		p,           # Moved Points of G
+		P,           # the direct product we will return
+		generators,  # the generators of P.
 		grps,        # record entry of info.
 		olds,        # record entry of info.
 		news,        # record entry of info.
 		perms,       # record entry of info.
 		info;        # record for the DirectProductInfo of Y.
-
 
 	# Initialize the variables.
 	grps := [];
@@ -42,8 +56,8 @@ function(part)
 	generators := [];
 
 	# Generate the record entries of info.
-	for p in part do
-		G := SymmetricGroup(p);
+	for G in list do
+		p := MovedPoints(G);
 		Append(generators, GeneratorsOfGroup(G));
 		Add(grps, G);
 		Add(olds, p);
@@ -52,16 +66,16 @@ function(part)
 	od;
 
 	# Generate the Young subgroup Y and add the DirectProductInfo info to Y.
-	Y := Group(generators);
+	P := Group(generators);
 	info := rec( groups := grps,
 	             olds := olds,
 	             news := news,
 	             perms := perms,
 	             embeddings := [],
 	             projections := [] );
-	SetDirectProductInfo(Y, info);
+	SetDirectProductInfo(P, info);
 
-	return Y;
+	return P;
 end);
 
 ## Given a young group G, this will compute a subgroup ladder
