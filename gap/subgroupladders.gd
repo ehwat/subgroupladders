@@ -38,3 +38,4 @@ DeclareGlobalFunction( "SubgroupLadder");
 DeclareGlobalFunction( "EmbeddingWreathProduct");
 DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
 DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
+DeclareGlobalFunction( "EmbeddingWreathProductOp");
