@@ -215,8 +215,8 @@ function(arg)
 		orbs,
 		gens,
 		subgroupladder,
+		tmpladder,
 		directfactors,
-		o,
 		gensSo,
 		Y;
 
