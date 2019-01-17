@@ -33,7 +33,7 @@ function(Omega, chain, U)
 		sum := 0;
 		for x in fixed do
 			Delta := List(cosets, c -> RightCoset(B, Representative(c)*Representative(x)));
-			sum := sum + CountFixedPoints(Delta, chain, U);
+			sum := sum + CountFixedPoints(Delta, ShallowCopy(chain), U);
 		od;
 		return sum;
 	fi;
