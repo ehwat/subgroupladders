@@ -87,3 +87,6 @@ DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
 #! @Arguments list
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
+
+
+DeclareGlobalFunction( "SubgroupLadderWreath");

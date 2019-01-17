@@ -234,24 +234,32 @@ function(arg)
 
 	orbs := List(Orbits(G));
 	gens := List(GeneratorsOfGroup(G));
-	subgroupladder := [G];
 
-	#initialize directfactors as the list of the induced permutation groups on the orbits
+	# initialize directfactors as the list of the induced permutation groups on the orbits
 	directfactors := List(orbs, o->Group(List(gens, x->RestrictedPerm(x, o))));
+	# embed G into the direct product of these transitive constituents.
+	# As the index may be very high, we compute a Ascendingchain
 	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
-	if ( H <> G) then
-		Add(subgroupladder, H);
-	fi;
+	subgroupladder := AscendingChain(H, G);
 
 	for i in [1..Length(orbs)] do
 		if (not IsPrimitive(directfactors[i], orbs[i])) then
 			directfactors[i] := EmbeddingWreathProduct(directfactors[i], orbs[i]);
 			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
-		fi;
-		gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
-		if (not IsSubgroup(directfactors[i], Group(gensSo))) then
-			directfactors[i] := SymmetricGroup(orbs[i]);
-			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
+			gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
+			if (not IsSubgroup(directfactors[i], Group(gensSo))) then
+				tmpladder := SubgroupLadderWreath(WreathProductInfo(directfactors[i]).components);
+				for H in tmpladder do
+					directfactors[i] := H;
+					Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
+				od;
+			fi;
+		else
+			tmpladder := AscendingChain(SymmetricGroup(orbs[i]), directfactors[i]);
+			for H in tmpladder{[2..Length(tmpladder)]} do
+				directfactors[i] := H;
+				Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
+			od;
 		fi;
 	od;
 
@@ -319,6 +327,30 @@ function(B)
 	);
 	SetWreathProductInfo(W, info);
 	return W;
+end);
+
+InstallGlobalFunction(SubgroupLadderWreath,
+function(blocks)
+	local
+		ladder,    # the constructed subgroupladder
+		i,         # loop integer variable
+		G,         # loop variable for Groups
+		l;         # the number of blocks
+
+	ladder := [];
+	l := Length(blocks);
+
+	# the first group is not in the output
+
+	for i in Reversed([2..l-1]) do
+		G := DirectProductPermGroupsWithoutRenamingNC( Concatenation([EmbeddingWreathProductOp(blocks{[1..i]})], List([i+1..l], k -> SymmetricGroup(blocks[k]))));
+		Add(ladder, G);
+	od;
+
+	G := YoungGroupFromPartitionNC(blocks);
+
+	Append(ladder, SubgroupLadderForYoungGroup(G));
+	return ladder;
 end);
 
 # vim: set noet ts=4:
