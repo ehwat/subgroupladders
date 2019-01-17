@@ -4,3 +4,4 @@
 # Reading the implementation part of the package.
 #
 ReadPackage( "subgroupladders", "gap/subgroupladders.gi");
+ReadPackage( "subgroupladders", "gap/tableofmarks.gi");

@@ -5,3 +5,4 @@
 #
 
 ReadPackage( "subgroupladders", "gap/subgroupladders.gd");
+ReadPackage( "subgroupladders", "gap/tableofmarks.gd");
