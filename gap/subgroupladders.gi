@@ -277,7 +277,18 @@ end);
 ## that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
 InstallGlobalFunction( EmbeddingWreathProduct,
 function(G, Om)
-	return EmbeddingWreathProductOp(Blocks(G, Om));
+	local blocks, lengths, rep;
+
+
+	# We compute a block system of median length
+	blocks := AllBlocks(G);
+	lengths := List(blocks, Length);
+	lengths := Set(lengths);
+	rep := First(blocks, x -> Length(x) = Median(lengths));
+	blocks := Orbit(G, rep, OnSets);
+
+	# compute the wreath product corresponding to this block system
+	return EmbeddingWreathProductOp(blocks);
 end);
 
 ## Given a permutation group G and a set Om, such that G acts imprimitive on Om,
