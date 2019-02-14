@@ -16,7 +16,7 @@ function(list, G)
 			if Length(chain) = 1 then
 				table[i][j] := 1;
 			else
-				table[i][j] := TableOfMarksEntryWithChain(RightCosets(G, chain[Length(chain)-1]), ShallowCopy(chain), list[j]);
+				table[i][j] := TableOfMarksEntryWithChain(G, ShallowCopy(chain), list[j]);
 			fi;
 		od;
 	od;
@@ -24,39 +24,34 @@ function(list, G)
 	return table;
 end);
 
-## Internal function called by TableOfMarksPartial, which computes recursively one entry of the table of marks.
+## Internal function called by TableOfMarksPartial, which computes iteratively one entry of the table of marks.
 ## Let G be the parent group of the table of marks, i.e.
-## U,H <= G, where chain is an ascending subgroup chain of the form C <= ... <= B <= A <= H.
-## Let Gamma be the fixed points of R[G : H] in U, say Hg_1, ..., Hg_k.
-## Let R[H : A] be Ah_1, ..., Ah_l.
-## Then Omega is the set of the split cosets of Gamma, i.e. 
-## Ah_1g_1, ..., Ah_lg_1, ..., Ah_1g_k, ..., Ah_lg_k.
-## Return the number of fixed points of R[G : C] in U.
+## U,V <= G, where chain is an ascending subgroup chain of the form V <= ... <= B <= A <= ... <= G.
+## By iteration we compute the fixed points of R[G : V] with resprect to the action by right multiplication of U.
 InstallGlobalFunction(TableOfMarksEntryWithChain,
-function(Omega, chain, U)
+function(G, chain, U)
 	local 
-		fixed,      # fixed points of Omega, cosets of A in H 
 		A,          # subgroup in chain
 		B,          # subgroup in chain
-		cosets,     # cosets of B in A
-		sum,        # number of fixed points
-		Delta,      # the split cosets of Omega
-		x;          # loop variable, fixed point
-	fixed := FixedPoints(Omega, U, OnRight);
-	if (Length(chain) = 2) then
-		return Length(fixed);
-	else
-		Remove(chain);
-		A := chain[Length(chain)];
-		B := chain[Length(chain)-1];
-		cosets := RightCosets(A, B);
-		sum := 0;
-		for x in fixed do
-			Delta := List(cosets, c -> RightCoset(B, Representative(c)*Representative(x)));
-			sum := sum + TableOfMarksEntryWithChain(Delta, ShallowCopy(chain), U);
+		RAB,        # cosets of B in A
+		Omega,      # fixed points of RGA
+		x,          # loop variable, fixed point, element of Omega
+		Delta,      # the split cosets of x in Omega
+		Gamma;      # the fixed points in Delta
+
+	Omega := ShallowCopy( RightCosets(G, G) );
+	while Length(chain) >= 2 do
+		A := Remove(chain);
+		B := chain[Length(chain)];
+		RAB := RightCosets(A, B);
+		Gamma := [];
+		for x in Omega do
+			Delta := List(RAB, c -> RightCoset(B, Representative(c)*Representative(x)));
+			Append(Gamma, FixedPoints(Delta, U, OnRight));
 		od;
-		return sum;
-	fi;
+		Omega := ShallowCopy(Gamma);
+	od;
+	return Length(Omega);
 end);
 
 ## Given a group G with an action act on an object obj,

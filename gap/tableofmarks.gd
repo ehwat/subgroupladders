@@ -8,15 +8,10 @@ DeclareGlobalFunction( "TableOfMarksPartial" );
 #! @Description
 #! Internal function called by TableOfMarksPartial, which computes recursively one entry of the table of marks.
 #! Let <M>G</M> be the parent group of the table of marks, i.e.
-#! <A>U</A>,<M>H \leq G</M>, where <A>chain</A> is an ascending subgroup chain of the form 
-#! <M>C \leq \cdots \leq B \leq A \leq H</M>.
-#! Let Gamma be the fixed points of <M>R[G : H]</M> in <A>U</A>, say <M>Hg_1, \ldots, Hg_k</M>.
-#! Let <M>R[H : A]</M> be <M>Ah_1, ..., Ah_l</M>.
-#! Then Omega is the set of the split cosets of Gamma, i.e. 
-#! <M>Ah_1g_1, \ldots, Ah_lg_1, \ldots, Ah_1g_k, \ldots, Ah_lg_k</M>.
-#! Return the number of fixed points of <M>R[G : C]</M> in <A>U</A>.
+#! <M>U,V \leq G</M>, where chain is an ascending subgroup chain of the form <M>V \leq \ldots \leq B \leq A \leq \ldots \leq G</M>.
+#! By iteration we compute the fixed points of <M>R[G : V]</M> with resprect to the action by right multiplication of <M>U</M>.
 #! @Returns integer
-#! @Arguments Omega, chain, U
+#! @Arguments G, chain, U
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "TableOfMarksEntryWithChain" );
 
