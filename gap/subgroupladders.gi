@@ -94,7 +94,9 @@ function(arg)
 		n,            # degree of the parent symmetric group
 		i,            # loop variable
 		k,            # size of current partition
-		ladder,       # the ladder is a list containing pairs [partition, mapping]
+		ladder,       # the ladder is a list containing triples [partition, mapping, lastDirection]
+		lastDirection # an integer -1, 1 or 0 depending on whether the last step in the chain was
+		              # down, up or the group was the first in the ladder.
 		partition,    # partition is a list of positive integers (a_1, ..., a_k) such that
 		              # a_1 is the biggest integer of the list.
 		mapping,      # mapping is a list of positive integers (m_1, ..., m_n) such that
@@ -136,7 +138,7 @@ function(arg)
 
 	partition := List(orb, Length);
 	mapping := List([1..n], x -> PositionProperty([1..Length(orb)], i -> x in orb[i]));
-	ladder := [[List(partition), List(mapping)]];
+	ladder := [[List(partition), List(mapping), 0]];
 
 	# Start the iterative construction of the ladder
 	while (Length(partition) <> 1 or partition[1] < n) do
@@ -146,10 +148,10 @@ function(arg)
 		if (Length(partition) = 1) then
 			mapping[Position(mapping, 0)] := 1;
 			partition[1] := partition[1] + 1;
-			Add(ladder, [List(partition), List(mapping)]);
+			Add(ladder, [List(partition), List(mapping), 1]);
 		else
 			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 = 1.
-			# Add the young subgroup with partition (a_1, a_3, ..., a_k)
+			# Add the young subgroup with partition (a_1+1, a_3, ..., a_k)
 			# and continue iteration with this group.
 			if (partition[2] = 1) then
 				Remove(partition, 2);
@@ -159,7 +161,7 @@ function(arg)
 					fi;
 				od;
 				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition), List(mapping)]);
+				Add(ladder, [List(partition), List(mapping), 1]);
 			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 > 1.
 			# First add the young subgroup with partition (a_1, 1, a_2 - 1, a_3, ..., a_k).
 			# Then add the young subgroup with partition (a_1 + 1, a_2 - 1, a_3, ..., a_k)
@@ -168,12 +170,12 @@ function(arg)
 				mapping[Position(mapping, 2)] := Length(partition)+1;
 				partition[2] := partition[2] - 1;
 				Add(partition, 1);
-				Add(ladder, [List(partition), List(mapping)]);
+				Add(ladder, [List(partition), List(mapping), -1]);
 
 				mapping[Position(mapping, Length(partition))] := 1;
 				Remove(partition);
 				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition), List(mapping)]);
+				Add(ladder, [List(partition), List(mapping), 1]);
 			fi;
 		fi;
 	od;
@@ -182,7 +184,8 @@ function(arg)
 	for pair in ladder do
 		k := Length(pair[1]);
 		mapping := pair[2];
-		Add(output, YoungGroupFromPartition(List([1..k], i -> Filtered([1..n], x -> i = mapping[x]))));
+		lastDirection := pair[3];
+		Add(output, rec(Group:=YoungGroupFromPartition(List([1..k], i -> Filtered([1..n], x -> i = mapping[x]))), LastDirection:=lastDirection));
 	od;
 
 	return output;
@@ -218,7 +221,6 @@ function(arg)
 		subgroupladder,
 		tmpladder,
 		directfactors,
-		gensSo,
 		Y;
 
 	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
@@ -250,9 +252,11 @@ function(arg)
 	# As the index may be very high, we compute a Ascendingchain
 	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
 	if refine then
-		subgroupladder := AscendingChain(H, G);
+		subgroupladder := List(AscendingChain(H, G), x -> rec(Group:=x, LastDirection:=1));
+		subgroupladder[1].LastDirection := 0;
 	else
-		subgroupladder := DuplicateFreeList([G, H]);
+		subgroupladder := List(DuplicateFreeList([G, H]), x -> rec(Group:=x, LastDirection:=1));
+		subgroupladder[1].LastDirection := 0;
 	fi;
 
 	# loop in directfactors and try to embed these into symmetric groups
@@ -261,18 +265,14 @@ function(arg)
 		# check if directfactor is primitive
 		if (not IsPrimitive(directfactors[i], orbs[i])) then
 			# embedding into wreath product on blocks
-			# TO DO: CHECK IF WREATHPRODUCT AND DIRECTFACTOR WERE THE SAME
 			directfactors[i] := EmbeddingWreathProduct(directfactors[i]);
-			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
-			gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
-			# embedding of wreath product into symmetric group
-			if (not IsSubgroup(directfactors[i], Group(gensSo))) then
-				tmpladder := SubgroupLadderWreath(WreathProductInfo(directfactors[i]).components);
-				for H in tmpladder do
-					directfactors[i] := H;
-					Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
-				od;
-			fi;
+			Add(subgroupladder, rec(Group:=DirectProductPermGroupsWithoutRenamingNC(directfactors), LastDirection:=1));
+			# Going down from wreath product into base group.
+			tmpladder := SubgroupLadderWreath(WreathProductInfo(directfactors[i]).components);
+			for H in tmpladder do
+				directfactors[i] := H;
+				Add(subgroupladder, rec(Group:=DirectProductPermGroupsWithoutRenamingNC(directfactors), LastDirection:=-1));
+			od;
 		else
 			if refine then
 				tmpladder := AscendingChain(SymmetricGroup(orbs[i]), directfactors[i]);
@@ -281,7 +281,7 @@ function(arg)
 			fi;
 			for H in tmpladder{[2..Length(tmpladder)]} do
 				directfactors[i] := H;
-				Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
+				Add(subgroupladder, rec(Group:=DirectProductPermGroupsWithoutRenamingNC(directfactors), LastDirection:=1));
 			od;
 		fi;
 	od;
