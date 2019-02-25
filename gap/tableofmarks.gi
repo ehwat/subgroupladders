@@ -47,7 +47,7 @@ function(G, chain, U)
 		Gamma := [];
 		for x in Omega do
 			Delta := List(RAB, c -> RightCoset(B, Representative(c)*Representative(x)));
-			Append(Gamma, FixedPoints(Delta, U, OnRight));
+			Append(Gamma, FixedPoints_(Delta, U, OnRight));
 		od;
 		Omega := ShallowCopy(Gamma);
 	od;
@@ -56,7 +56,7 @@ end);
 
 ## Given a group G with an action act on an object obj,
 ## this operation returns a subset of obj that is pointwise fixed by G.
-InstallMethod( FixedPoints,
+InstallMethod( FixedPoints_,
 "for a generic object",
 true,
 [ IsObject, IsGroup, IsFunction ],

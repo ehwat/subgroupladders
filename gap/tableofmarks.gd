@@ -21,4 +21,4 @@ DeclareGlobalFunction( "TableOfMarksEntryWithChain" );
 #! @Returns subset of <A>obj</A>
 #! @Arguments obj, G, act
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareOperation("FixedPoints", [IsObject, IsGroup, IsFunction]);
+DeclareOperation("FixedPoints_", [IsObject, IsGroup, IsFunction]);
