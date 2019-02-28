@@ -158,7 +158,6 @@ function(arg)
 		fi;
 	od;
 
-	# Return the ladder.
 	return ladder;
 end);
 
@@ -192,30 +191,22 @@ function(arg)
 		ladder,
 		tmpladder,
 		step,
+		tmpArg,
 		directfactors;
 
 	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
-		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>][,<refine>]), where <G> is a intransitive subgroup of the symmetric group on <n> letters\n");
+		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a subgroup of the symmetric group on <n> letters and refine is a boolean\n");
 	fi;
 
-	if (Length(arg) = 3) then
-		G := arg[1];
-		n := arg[2];
-		refine := arg[3];
+	G := arg[1];
+	if (Length(arg) = 1) then
+		refine := false;
 	else
-		if (Length(arg) = 2) then
-			G := arg[1];
-			n := arg[2];
-			refine := false;
-		else
-			G := arg[1];
-			n := LargestMovedPoint(G);
-			refine := false;
-		fi;
+		refine := arg[2];
 	fi;
 
-	orbs := List(Orbits(G));
-	gens := List(GeneratorsOfGroup(G));
+	orbs := Orbits(G);
+	gens := GeneratorsOfGroup(G);
 
 	# initialize directfactors as the list of the induced permutation groups on the orbits
 	directfactors := List(orbs, o->Group(DuplicateFreeList(List(gens, x->RestrictedPerm(x, o)))));
@@ -228,28 +219,29 @@ function(arg)
 	# Loop in directfactors and try to embed these into symmetric groups.
 	# End result is a young group.
 	for i in [1..Length(orbs)] do
-		# Check if directfactor is primitive
+		# Check if directfactor is imprimitive
 		if (not IsPrimitive(directfactors[i], orbs[i])) then
-			tmpladder := SubgroupLadderForImprimitive(directfactors[i]);
-			for step in tmpladder{[2..Length(tmpladder)]} do
-				directfactors[i] := step.Group;
-				H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
-				Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
-			od;
+			tmpladder := SubgroupLadderForImprimitive(directfactors[i], refine);
 		else
-			tmpladder := SubgroupLadderRefineStep( directfactors[i], SymmetricGroup(orbs[i]) );
-			for step in tmpladder{[2..Length(tmpladder)]} do
-				directfactors[i] := step.Group;
-				H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
-				Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
-			od;
+			tmpladder := SubgroupLadderRefineStep( directfactors[i], SymmetricGroup(orbs[i]), refine );
 		fi;
+		
+		for step in tmpladder{[2..Length(tmpladder)]} do
+			directfactors[i] := step.Group;
+			H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
+			Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
+		od;
 	od;
 
-	# Now we have a young group.
+	# Now we construct a ladder for the young group.
 	step := ladder[Length(ladder)];
-	tmpladder := SubgroupLadderForYoungGroup(step.Group, n);
+	tmpArg := [step.Group];
+	if Length(arg) = 3 then
+		tmpArg[2] := arg[3];
+	fi;
+	tmpladder := SubgroupLadderForYoungGroup(tmpArg);
 	Append( ladder, tmpladder{[2..Length(tmpladder)]});
+
 	return ladder;
 end);
 
@@ -313,8 +305,10 @@ function(B)
 end);
 
 InstallGlobalFunction(SubgroupLadderForImprimitive,
-function(G)
+function(arg)
 	local
+		G,         # imprimitive permutation group
+		refine,     # boolean, if true, ascending chains are placed where index is bad
 		ladder,    # the constructed subgroupladder
 		allblocks, # representants of all possible block systems of G
 		lengths,   # set of all block sizes in allblocks
@@ -323,7 +317,19 @@ function(G)
 		l,         # the number of blocks
 		i,         # loop integer variable
 		H,         # loop variable for Groups
-		tmpladder; # placeholder for part of ladder
+		tmpladder, # placeholder for part of ladder
+		tmpArg;    # placeholder for arguments on SubgroupLadderForYoungGroup call
+
+	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
+		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a imprimitive subgroup of the symmetric group on <n> letters and refine is a boolean\n");
+	fi;
+
+	G := arg[1];
+	if (Length(arg) = 1) then
+		refine := false;
+	else
+		refine := arg[2];
+	fi;
 
 	# We compute a block system of median length
 	allblocks := AllBlocks(G);
@@ -332,11 +338,11 @@ function(G)
 	rep := First(allblocks, x -> Length(x) = Median(lengths));
 	blocks := Orbit(G, rep, OnSets);
 	l := Length(blocks);
-
-	ladder := [rec(Group := G, LastDirection := 0)];
 	
 	# First embedd the group into the wreath product on the blocks
-	Add(ladder, rec(Group := WreathProductOnBlocks(blocks), LastDirection := 1));
+	H := WreathProductOnBlocks(blocks);
+	ladder := SubgroupLadderRefineStep( G, H, refine);
+	ladder[1].LastDirection := 0;
 
 	# Iteratively go down from wreath product to base group
 	for i in Reversed([2..l-1]) do
@@ -347,7 +353,11 @@ function(G)
 	# H is now the base group, i.e. a young group.
 	# Construct a subgroupladder for the young group.
 	H := YoungGroupFromPartitionNC(blocks);
-	tmpladder := SubgroupLadderForYoungGroup(H);
+	tmpArg := [H];
+	if Length(arg) = 3 then
+		tmpArg[2] := arg[3];
+	fi;
+	tmpladder := SubgroupLadderForYoungGroup(tmpArg);
 	tmpladder[1].LastDirection := -1;
 	Append(ladder, tmpladder);
 
