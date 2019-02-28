@@ -68,7 +68,7 @@ function( list )
 		Add(perms, ());
 	od;
 
-	# Generate the Young subgroup Y and add the DirectProductInfo info to Y.
+	# Generate the direct product Y and add the DirectProductInfo info to Y.
 	P := Group(generators);
 	info := rec( groups := grps,
 	             olds := olds,
@@ -92,18 +92,15 @@ function(arg)
 		G,            # the provided young subgroup we will start the construction from
 		orb,          # the orbits of the permutation group G
 		n,            # degree of the parent symmetric group
-		i,            # loop variable
-		k,            # size of current partition
-		ladder,       # the ladder is a list containing triples [partition, mapping, lastDirection]
-		lastDirection # an integer -1, 1 or 0 depending on whether the last step in the chain was
+		ladder,       # the ladder is a list containing triples [partition, lastDirection]
+		              # lastDirection is an integer -1, 1 or 0 depending on whether the last step in the chain was
 		              # down, up or the group was the first in the ladder.
-		partition,    # partition is a list of positive integers (a_1, ..., a_k) such that
-		              # a_1 is the biggest integer of the list.
-		mapping,      # mapping is a list of positive integers (m_1, ..., m_n) such that
-		              # 1 <= m_i <= k for all i.
-		pair,         # a entry of the ladder [partition, mapping] used to construct a young subgroup
-		output;       # a list of groups forming the ladder of G into S_n
-
+		partition,    # partition part = (p_1, ..., p_k).
+		              # Every p_i is a list of positive integers such that the union of the p_i is disjoint.
+		k,            # size of current partition
+		p;            # loop variable, integer in p_k in partition.
+		
+	# Check Input and Initialize the variables
 	if (Length(arg) <> 1 and Length(arg) <> 2) then
 		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>]), where <G> is a young subgroup of the symmetric group on <n> letters\n");
 	fi;
@@ -113,82 +110,56 @@ function(arg)
 		n := arg[2];
 	else
 		G := arg[1];
-		n := LargestMovedPoint(G);
+		n := NrMovedPoints(G);
 	fi;
 
-
-	# Check if G is a permuatation group
 	if (not IsPermGroup(G)) then
 		ErrorNoReturn("the first argument must be a permutation group!\n");
 	fi;
 
-	# Initialize the variables
-	orb := List(Orbits(G, [1..n]));
-	SortBy(orb, x->-Length(x));
+	if(Length(arg) = 2) then
+		if (n < LargestMovedPoint(G)) then
+			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!\n");
+		fi;
+		partition := List( Orbits(G, [1..n]), o -> List(o) );
+	else
+		partition := List( Orbits(G), o -> List(o));
+	fi;
 
-	output := [];
-
-	if (YoungGroupFromPartition(orb) <> G) then
+	if (YoungGroupFromPartition(partition) <> G) then
 		ErrorNoReturn("the first argument must be a young subgroup!\n");
 	fi;
 
-	if (n < LargestMovedPoint(G)) then
-		ErrorNoReturn("degree of desired parent symmetric group is smaller than the degree of G!\n");
-	fi;
-
-	partition := List(orb, Length);
-	mapping := List([1..n], x -> PositionProperty([1..Length(orb)], i -> x in orb[i]));
-	ladder := [[List(partition), List(mapping), 0]];
+	ladder := [rec(Group := G, LastDirection := 0)];
+	k := Length(partition);
 
 	# Start the iterative construction of the ladder
-	while (Length(partition) <> 1 or partition[1] < n) do
-		# This is the case where partition = (a) and the current young subgroup is S_{a}.
-		# Add the group S_{a+1} to the ladder
+	while (k <> 1 or Length(partition[1]) < n) do
+		# This is the case where partition = (p_1, p_2, p_3, ..., p_k), p in p_k and |p_k| = 1,
+		# Add the young subgroup with partition (p_1 U {p}, p_2, p_3, ..., p_{k-1})
 		# and continue iteration with this group.
-		if (Length(partition) = 1) then
-			mapping[Position(mapping, 0)] := 1;
-			partition[1] := partition[1] + 1;
-			Add(ladder, [List(partition), List(mapping), 1]);
+		if (Length(partition[k]) = 1) then
+			p := Remove(partition[k]);
+			Add(partition[1], p);
+			Add(ladder, rec(Group:=YoungGroupFromPartitionNC(partition), LastDirection:=1));
+			k := k - 1;
+		# This is the case where partition = (p_1, p_2, p_3, ..., p_k), p in p_k and |p_k| >= 2.
+		# First add the young subgroup with partition (p_1, p_2, p_3, ..., p_k - {p}, {p}).
+		# Then add the young subgroup with partition (p_1 U {p}, p_2, p_3, ..., p_k - {p})
+		# and continue iteration with this group.
 		else
-			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 = 1.
-			# Add the young subgroup with partition (a_1+1, a_3, ..., a_k)
-			# and continue iteration with this group.
-			if (partition[2] = 1) then
-				Remove(partition, 2);
-				for i in [1..n] do
-					if (mapping[i]) > 1 then
-						mapping[i] := mapping[i] - 1;
-					fi;
-				od;
-				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition), List(mapping), 1]);
-			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 > 1.
-			# First add the young subgroup with partition (a_1, 1, a_2 - 1, a_3, ..., a_k).
-			# Then add the young subgroup with partition (a_1 + 1, a_2 - 1, a_3, ..., a_k)
-			# and continue iteration with this group.
-			else
-				mapping[Position(mapping, 2)] := Length(partition)+1;
-				partition[2] := partition[2] - 1;
-				Add(partition, 1);
-				Add(ladder, [List(partition), List(mapping), -1]);
+			p := Remove(partition[k]);
+			Add(partition, [p]);
+			Add(ladder, rec(Group:=YoungGroupFromPartitionNC(partition), LastDirection:=-1));
 
-				mapping[Position(mapping, Length(partition))] := 1;
-				Remove(partition);
-				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition), List(mapping), 1]);
-			fi;
+			Remove(partition);
+			Add(partition[1], p);
+			Add(ladder, rec(Group:=YoungGroupFromPartitionNC(partition), LastDirection:=1));
 		fi;
 	od;
 
-	# Construct the young subgroups of the pairs [partition, mapping] stored in ladder
-	for pair in ladder do
-		k := Length(pair[1]);
-		mapping := pair[2];
-		lastDirection := pair[3];
-		Add(output, rec(Group:=YoungGroupFromPartition(List([1..k], i -> Filtered([1..n], x -> i = mapping[x]))), LastDirection:=lastDirection));
-	od;
-
-	return output;
+	# Construct the young subgroups of the pairs [partition, lastDirection] stored in ladder
+	return ladder;
 end);
 
 ## Given a permutation group G, this will compute a subgroup ladder
