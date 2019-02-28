@@ -158,7 +158,7 @@ function(arg)
 		fi;
 	od;
 
-	# Construct the young subgroups of the pairs [partition, lastDirection] stored in ladder
+	# Return the ladder.
 	return ladder;
 end);
 
@@ -189,10 +189,10 @@ function(arg)
 		i,
 		orbs,
 		gens,
-		subgroupladder,
+		ladder,
 		tmpladder,
-		directfactors,
-		Y;
+		step,
+		directfactors;
 
 	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
 		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>][,<refine>]), where <G> is a intransitive subgroup of the symmetric group on <n> letters\n");
@@ -222,73 +222,55 @@ function(arg)
 	# embed G into the direct product of these transitive constituents.
 	# As the index may be very high, we compute a Ascendingchain
 	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
-	if refine then
-		subgroupladder := List(AscendingChain(H, G), x -> rec(Group:=x, LastDirection:=1));
-		subgroupladder[1].LastDirection := 0;
-	else
-		subgroupladder := List(DuplicateFreeList([G, H]), x -> rec(Group:=x, LastDirection:=1));
-		subgroupladder[1].LastDirection := 0;
-	fi;
+	ladder := SubgroupLadderRefineStep(G, H);
+	ladder[1].LastDirection := 0;
 
-	# loop in directfactors and try to embed these into symmetric groups
-	# end result is a young group
+	# Loop in directfactors and try to embed these into symmetric groups.
+	# End result is a young group.
 	for i in [1..Length(orbs)] do
-		# check if directfactor is primitive
+		# Check if directfactor is primitive
 		if (not IsPrimitive(directfactors[i], orbs[i])) then
-			# embedding into wreath product on blocks
-			directfactors[i] := EmbeddingWreathProduct(directfactors[i]);
-			Add(subgroupladder, rec(Group:=DirectProductPermGroupsWithoutRenamingNC(directfactors), LastDirection:=1));
-			# Going down from wreath product into base group.
-			tmpladder := SubgroupLadderWreath(WreathProductInfo(directfactors[i]).components);
-			for H in tmpladder do
-				directfactors[i] := H;
-				Add(subgroupladder, rec(Group:=DirectProductPermGroupsWithoutRenamingNC(directfactors), LastDirection:=-1));
+			tmpladder := SubgroupLadderForImprimitive(directfactors[i]);
+			for step in tmpladder{[2..Length(tmpladder)]} do
+				directfactors[i] := step.Group;
+				H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
+				Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
 			od;
 		else
-			if refine then
-				tmpladder := AscendingChain(SymmetricGroup(orbs[i]), directfactors[i]);
-			else
-				tmpladder := DuplicateFreeList([directfactors[i], SymmetricGroup(orbs[i])]);
-			fi;
-			for H in tmpladder{[2..Length(tmpladder)]} do
-				directfactors[i] := H;
-				Add(subgroupladder, rec(Group:=DirectProductPermGroupsWithoutRenamingNC(directfactors), LastDirection:=1));
+			tmpladder := SubgroupLadderRefineStep( directfactors[i], SymmetricGroup(orbs[i]) );
+			for step in tmpladder{[2..Length(tmpladder)]} do
+				directfactors[i] := step.Group;
+				H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
+				Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
 			od;
 		fi;
 	od;
 
-	Y := Remove(subgroupladder);
-	Append( subgroupladder, SubgroupLadderForYoungGroup(Y, n) );
-	return subgroupladder;
+	# Now we have a young group.
+	step := ladder[Length(ladder)];
+	tmpladder := SubgroupLadderForYoungGroup(step.Group, n);
+	Append( ladder, tmpladder{[2..Length(tmpladder)]});
+	return ladder;
 end);
 
-## Given a permutation group G such that G acts imprimitive on moving points,
-## this function will compute an embedding into the wreath product of S_m
-## with S_k where k is the size of a minimal non-trivial block system and m
-## is the size of the blocks.
-InstallGlobalFunction( EmbeddingWreathProduct,
-function(G)
-	local blocks, lengths, rep;
+## This method is called when the index may be critical high,
+## whereas G is a subgroup of H
+## If refine is true, try to construct an ascending chain from G into H.
+InstallGlobalFunction( SubgroupLadderRefineStep,
+function(G, H, refine)
+	local
+		ladder;
 
-	# We compute a block system of median length
-	blocks := AllBlocks(G);
-	lengths := List(blocks, Length);
-	lengths := Set(lengths);
-	rep := First(blocks, x -> Length(x) = Median(lengths));
-	blocks := Orbit(G, rep, OnSets);
+	if refine then
+		ladder := List(AscendingChain(H, G), x -> rec(Group:=x, LastDirection:=1));
+	else
+		ladder :=  List(DuplicateFreeList([G, H]), x -> rec(Group:=x, LastDirection:=1));
+	fi;
 
-	# compute the wreath product corresponding to this block system
-	return EmbeddingWreathProductOp(blocks);
+	return ladder;
 end);
 
-## Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-## this function will compute an embedding into the wreath product of S_m
-## with S_k where k is the size of a minimal non-trivial block system and m
-## is the size of the blocks.
-## The output is [lambda, emb], where emb is the embedding and lambda is a list,
-## such that G and the image of G under emb are permutation isomorphic,
-## that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
-InstallGlobalFunction( EmbeddingWreathProductOp,
+InstallGlobalFunction( WreathProductOnBlocks,
 function(B)
 	local
 		k,              # size of blocks system B
@@ -330,27 +312,45 @@ function(B)
 	return W;
 end);
 
-InstallGlobalFunction(SubgroupLadderWreath,
-function(blocks)
+InstallGlobalFunction(SubgroupLadderForImprimitive,
+function(G)
 	local
 		ladder,    # the constructed subgroupladder
+		allblocks, # representants of all possible block systems of G
+		lengths,   # set of all block sizes in allblocks
+		rep,       # representant of the block system with median block size out of all block systems
+		blocks,    # block system of G for the represenant rep
+		l,         # the number of blocks
 		i,         # loop integer variable
-		G,         # loop variable for Groups
-		l;         # the number of blocks
+		H,         # loop variable for Groups
+		tmpladder; # placeholder for part of ladder
 
-	ladder := [];
+	# We compute a block system of median length
+	allblocks := AllBlocks(G);
+	lengths := List(allblocks, Length);
+	lengths := Set(lengths);
+	rep := First(allblocks, x -> Length(x) = Median(lengths));
+	blocks := Orbit(G, rep, OnSets);
 	l := Length(blocks);
 
-	# the first group is not in the output
+	ladder := [rec(Group := G, LastDirection := 0)];
+	
+	# First embedd the group into the wreath product on the blocks
+	Add(ladder, rec(Group := WreathProductOnBlocks(blocks), LastDirection := 1));
 
+	# Iteratively go down from wreath product to base group
 	for i in Reversed([2..l-1]) do
-		G := DirectProductPermGroupsWithoutRenamingNC( Concatenation([EmbeddingWreathProductOp(blocks{[1..i]})], List([i+1..l], k -> SymmetricGroup(blocks[k]))));
-		Add(ladder, G);
+		H := DirectProductPermGroupsWithoutRenamingNC( Concatenation([WreathProductOnBlocks(blocks{[1..i]})], List([i+1..l], k -> SymmetricGroup(blocks[k]))));
+		Add(ladder, rec(Group := H, LastDirection := -1));
 	od;
 
-	G := YoungGroupFromPartitionNC(blocks);
-	Add(ladder, G);
-	#Append(ladder, SubgroupLadderForYoungGroup(G));
+	# H is now the base group, i.e. a young group.
+	# Construct a subgroupladder for the young group.
+	H := YoungGroupFromPartitionNC(blocks);
+	tmpladder := SubgroupLadderForYoungGroup(H);
+	tmpladder[1].LastDirection := -1;
+	Append(ladder, tmpladder);
+
 	return ladder;
 end);
 

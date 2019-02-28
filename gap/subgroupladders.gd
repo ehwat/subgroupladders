@@ -66,11 +66,11 @@ DeclareGlobalFunction( "SubgroupLadder");
 #! @Returns the Wreath Product 
 #! @Arguments G, [Omega]
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "EmbeddingWreathProduct");
+DeclareGlobalFunction( "ImprimitiveIntoWreathProduct");
 
 #! @Description
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "EmbeddingWreathProductOp");
+DeclareGlobalFunction( "WreathProductOnBlocks");
 
 #! @Description
 #! Constructs a direct product of a list <A>list</A> of permutation groups
@@ -89,4 +89,6 @@ DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
 DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
 
 
-DeclareGlobalFunction( "SubgroupLadderWreath");
+DeclareGlobalFunction( "SubgroupLadderForImprimitive");
+
+DeclareGlobalFunction( "SubgroupLadderRefineStep");
