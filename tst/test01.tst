@@ -1,4 +1,4 @@
-gap> TestRandom := function(n)
+gap> TestRandomYoungGroup := function(n)
 >  local
 >    p,
 >    g,
@@ -7,15 +7,16 @@ gap> TestRandom := function(n)
 >  p := RandomPartialPerm(n);
 >  p := ComponentsOfPartialPerm(p);
 >  g := YoungGroupFromPartition(p);
->  l := SubgroupLadder(g);
+>  l := SubgroupLadderForYoungGroup(g, n);
 >  for i in [2..Length(l)] do
->    if Order(l[i]) < Order(l[i-1]) then
->      if not (IsSubgroup(l[i-1],l[i]) and Index(l[i-1],l[i]) <= n) then
->         return false;
+>    if l[i].LastDirection = 1 then
+>      if not ( IsSubgroup( l[i].Group,l[i-1].Group ) and Index( l[i].Group,l[i-1].Group ) <= n) then
+>        return false;
 >      fi;
->    else
->      if not (IsSubgroup(l[i],l[i-1]) and Index(l[i],l[i-1]) <= n) then
->         return false;
+>    fi;
+>    if l[i].LastDirection = -1 then
+>      if not ( IsSubgroup( l[i-1].Group,l[i].Group ) and Index( l[i-1].Group,l[i].Group ) <= n) then
+>        return false;
 >      fi;
 >    fi;
 >  od;
@@ -23,9 +24,9 @@ gap> TestRandom := function(n)
 > end;;
 
 #
-gap> TestRandom(20);
+gap> TestRandomYoungGroup(20);
 true
-gap> TestRandom(30);
+gap> TestRandomYoungGroup(30);
 true
-gap> TestRandom(40);
+gap> TestRandomYoungGroup(40);
 true
