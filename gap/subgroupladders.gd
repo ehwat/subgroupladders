@@ -21,6 +21,23 @@ DeclareGlobalFunction( "YoungGroupFromPartition" );
 #! @ChapterInfo subgroupladders, subgroupladders
 
 DeclareGlobalFunction( "YoungGroupFromPartitionNC" );
+
+#! @Description
+#! Constructs a direct product of a list <A>list</A> of permutation groups
+#! with pairwise disjoint moved points such that all embeddings are canonical,
+#! @Returns the direct product P.
+#! @Arguments list
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
+
+#! @Description
+#! Like the above, but does not tests whether the argument is a list of permutation
+#! groups with pairwise disjoint moved points.
+#! @Returns the direct product P.
+#! @Arguments list
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
+
 #! @Description
 #! Given a young group <A>G</A>, this will compute a subgroup ladder
 #! from <A>G</A> up to the symmetric group of degree <A>n</A>.
@@ -59,36 +76,11 @@ DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadder");
 
-#! @Description
-#! Given a transitive permutation group <A>G</A> on <A>Omega</A>, 
-#! This function computes the wreath product corresponding to a minimal 
-#! block system of <A>G</A> as a supergroup of the permutation group <A>G</A>.
-#! @Returns the Wreath Product 
-#! @Arguments G, [Omega]
-#! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "ImprimitiveIntoWreathProduct");
-
-#! @Description
-#! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "WreathProductOnBlocks");
-
-#! @Description
-#! Constructs a direct product of a list <A>list</A> of permutation groups
-#! with pairwise disjoint moved points such that all embeddings are canonical,
-#! @Returns the direct product P.
-#! @Arguments list
-#! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
-
-#! @Description
-#! Like the above, but does not tests whether the argument is a list of permutation
-#! groups with pairwise disjoint moved points.
-#! @Returns the direct product P.
-#! @Arguments list
-#! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
-
-
-DeclareGlobalFunction( "SubgroupLadderForImprimitive");
-
+DeclareGlobalFunction( "SubgroupLadderCheckInput");
 DeclareGlobalFunction( "SubgroupLadderRefineStep");
+DeclareGlobalFunction( "SubgroupLadderForDirectProductOfTransitiveGroups");
+DeclareGlobalFunction( "SubgroupLadderForTransitive");
+DeclareGlobalFunction( "SubgroupLadderForImprimitive");
+DeclareGlobalFunction( "WreathProductSupergroupOfImprimitive");
+DeclareGlobalFunction( "WreathProductWithoutRenaming");
+DeclareGlobalFunction( "SchreierTreeTrace_");
