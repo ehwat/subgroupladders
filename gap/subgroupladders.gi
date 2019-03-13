@@ -4,9 +4,6 @@
 # Implementations
 #
 
-## Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
-## Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
-## The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartition,
 function(part)
 	if (IsDuplicateFree(Concatenation(part))) then
@@ -15,16 +12,11 @@ function(part)
 	ErrorNoReturn("The Argument must me a list of disjoint lists!\n");
 end);
 
-## Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
-## Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
-## The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartitionNC,
 function( part )
 	return DirectProductPermGroupsWithoutRenamingNC(List(part, SymmetricGroup));
 end);
 
-## Constructs a direct product of a list <A>list</A> of permutation groups
-## with pairwise disjoint moved points such that all embeddings are canonical.
 InstallGlobalFunction( DirectProductPermGroupsWithoutRenaming,
 function( list )
 	if ForAny(list, G -> not IsPermGroup(G)) then
@@ -36,8 +28,6 @@ function( list )
 	return DirectProductPermGroupsWithoutRenamingNC( list );
 end);
 
-## Like the above, but does not tests whether the argument is a list of permutation
-## groups with pairwise disjoint moved points.
 InstallGlobalFunction( DirectProductPermGroupsWithoutRenamingNC,
 function( list )
 	local
@@ -81,11 +71,6 @@ function( list )
 	return P;
 end);
 
-## Given a young group G, this will compute a subgroup ladder
-## from G up to the symmetric group of degree n.
-## If the second argument is ommited, the largest moved point of G will be
-## used. We can guarantee that all
-## the indices are at most the degree n of the permutation group.
 InstallGlobalFunction( SubgroupLadderForYoungGroup,
 function(arg)
 	local
@@ -118,6 +103,9 @@ function(arg)
 	fi;
 
 	if(Length(arg) = 2) then
+		if (not IsInt(n) or n <= 0) then
+			ErrorNoReturn("the second argument must be a positive integer!\n");
+		fi;
 		if (n < LargestMovedPoint(G)) then
 			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!\n");
 		fi;
@@ -190,28 +178,11 @@ function(arg)
 			ErrorNoReturn("the third argument must be an int!\n");
 		fi;
 		if (n < LargestMovedPoint(G)) then
-			ErrorNoReturn("the third argument is smaller than the largest moved point on G");
+			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!");
 		fi;
 	fi;
 end);
 
-## Given a permutation group G, this will compute a subgroup ladder
-## from G up to the symmetric group of degree n.
-## If the second argument is ommited, the largest moved point of G will be
-## used.
-## A subgroup ladder is series of subgroups G = H_0,…,H_k = S_n of the
-## symmetric group such that for every 1 <= i <= k, H_i is a
-## subgroup of H_{i-1} or H_{i-1} is a subgroup of H_i.
-## This functions embeds G first into the direct product of the induced
-## permutation groups on the orbits. This then is embedded into the young group
-## corresponding to the orbits by iteratively replacing the restrictions
-## of G on each orbit first with  the wreath product of
-## symmetric groups corresponding to a minimal block system of
-## that transitive constituent and then with the symmetric group on that orbit.
-## Up to this step, the indices in the subgroup chain can be preetty high.
-## This chain is followed by a subgroup ladder from the young subgroup to
-## S_(n) is constructed with SubgroupLadderForYoungGroup, which produceds a
-## subgroup ladder with indiceds at most n.
 InstallGlobalFunction( SubgroupLadder,
 function(arg)
 	local
@@ -225,10 +196,10 @@ function(arg)
 		ladder,
 		tmpladder,
 		step,
-		tmpArg,
+		tmparg,
 		directfactors;
 
-	SubgroupLadderCheckInput(arg);
+	CallFuncList(SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -239,14 +210,16 @@ function(arg)
 	# embed G into the direct product of the transitive constituents of G.
 	# note that G is a subdirect product of the transtive constituents,
 	# hence we embed a subdirect product into a direct product. Index may be large.
-	orbs := Orbits(G);
 	gens := GeneratorsOfGroup(G);
+	orbs := Orbits(G);
 	directfactors := List(orbs, o->Group(DuplicateFreeList(List(gens, x->RestrictedPerm(x, o)))));
 	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
 	ladder := SubgroupLadderRefineStep(G, H, refine);
 	ladder[1].LastDirection := 0;
 
-	tmpladder := SubgroupLadderForDirectProductOfTransitiveGroups(H);
+	tmparg := ShallowCopy(arg);
+	tmparg[1] := H;
+	tmpladder := CallFuncList(SubgroupLadderForDirectProductOfTransitiveGroups, tmparg);
 	Append(ladder, tmpladder{[2..Length(tmpladder)]});
 
 	return ladder;
@@ -262,7 +235,7 @@ InstallGlobalFunction(SubgroupLadderForDirectProductOfTransitiveGroups, function
 		tmpladder,
 		step,
 		H,
-		tmpArg;
+		tmparg;
 
 	G := arg[1];
 	if (Length(arg) = 1) then
@@ -283,8 +256,13 @@ InstallGlobalFunction(SubgroupLadderForDirectProductOfTransitiveGroups, function
 		od;
 	od;
 
-	# now we construct a ladder for the remaining young group.
-	tmpladder := SubgroupLadderForYoungGroup(ladder[Length(ladder)].Group);
+	# now we construct a ladder for the remaining young group
+	H := ladder[Length(ladder)].Group;
+	tmparg := [H];
+	if (Length(arg) = 3) then
+		Add(tmparg, arg[3]);
+	fi;
+	tmpladder := CallFuncList(SubgroupLadderForYoungGroup, tmparg);
 	Append( ladder, tmpladder{[2..Length(tmpladder)]});
 
 	return ladder;
@@ -297,10 +275,6 @@ function(arg)
 		refine,
 		orb,
 		ladder;
-
-	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
-		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a subgroup of the symmetric group on <n> letters and refine is a boolean\n");
-	fi;
 
 	G := arg[1];
 	if (Length(arg) = 1) then
@@ -319,7 +293,7 @@ function(arg)
 	if (not IsPrimitive(G, orb)) then
 		ladder := SubgroupLadderForImprimitive(G, refine);
 	else
-		ladder := SubgroupLadderRefineStep( G, SymmetricGroup(orb), refine );
+		ladder := SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
 	fi;
 
 	return ladder;
@@ -339,10 +313,6 @@ function(arg)
 		tmpladder, # placeholder for part of ladder
 		tmpArg;    # placeholder for arguments on SubgroupLadderForYoungGroup call
 
-	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
-		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a imprimitive subgroup of the symmetric group on <n> letters and refine is a boolean\n");
-	fi;
-
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -350,14 +320,14 @@ function(arg)
 		refine := arg[2];
 	fi;
 	
-	# First embedd the group into a wreath product on some block system of G
+	# First embed the group into a wreath product on some block system of G
 	W := WreathProductSupergroupOfImprimitive(G);
 	ladder := SubgroupLadderRefineStep( G, W, refine);
 	ladder[1].LastDirection := 0;
 
 	# Next embed the top group of wreath product into a symmetric group
 	# Then go down from symmetric group to trivial group
-	# Comstruct the dual ladder for the whole wreath product
+	# Construct the dual ladder for the whole wreath product
 	tmpladder := SubgroupLadderForTransitive(WreathProductInfo(W).groups[2], refine);
 	H := tmpladder[Length(tmpladder)].Group;
 	p := List(Orbits(H)[1]);
@@ -485,7 +455,6 @@ function(basefactor, topgroup, perms)
 	return W;
 end);
 
-# use the schreier tree in the stab chain of G to trace some element g in G s.t. a^g=b
 InstallGlobalFunction(SchreierTreeTrace_, 
 function(G, a, b)
 	local 
@@ -514,9 +483,6 @@ function(G, a, b)
 	return g * h^(-1);
 end);
 
-## This method is called when the index may be critical high,
-## whereas G is a subgroup of H
-## If refine is true, try to construct an ascending chain from G into H.
 InstallGlobalFunction( SubgroupLadderRefineStep,
 function(G, H, refine)
 	local
