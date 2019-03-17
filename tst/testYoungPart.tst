@@ -33,4 +33,3 @@ rec(
        11) ]), 2nd projection of Group([ (1,2,3), (1,2), (10,11,12), (10,
        11) ]), 3rd projection of Group([ (1,2,3), (1,2), (10,11,12), (10,
        11) ]) ] )
-gap> 

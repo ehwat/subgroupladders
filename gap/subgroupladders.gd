@@ -12,7 +12,7 @@
 #! calls to find additional intermediate subgroup when the index may be large.
 #!
 #! This functions embeds <A>G</A> first into the direct product of the induced
-#! permutation groups on the orbits, possible refined using `AscendingChain`. 
+#! permutation groups on the orbits, possible refined using `AscendingChain`.
 #! Then ladders for each of the direct factors
 #! are constructed and put together yielding a letter up to the Young subgroup
 #! corresponding to the orbits. This then is embedded into the wanted parent
@@ -63,26 +63,6 @@ DeclareGlobalFunction( "SubgroupLadderRefineStep");
 #! @Arguments G, [n]
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
-
-#! @Description
-#! This internal function is called by `SubgroupLadder` with <A>G</A>
-#! Direct product of transitive permutation groups with disjoint moved points.
-#! The argument <A>n</A> is the degree of the target symmetric group <M>S_n</M>.
-#! If omitted, the moved points will be used. The `refine` option may result in further
-#! `AscendingChain` calls in order to decrease indices in the ladder.
-#! 
-#! The function constructs a ladder for every direct factor using 
-#! `SubgroupLadderForTransitive`.
-#! By concatenation of the ladders we construct a ladder on the whole group up
-#! the Young group corresponding to the orbits. Then `SubgroupLadderForYoungGroup`
-#! is called.
-#! @Returns A subgroup ladder from <A>G</A> to the wanted symmetric group.
-#! The output is a list of records with a `Group` and a `LastDirection` field.
-#! The `LastDirection` entry is set to 1, if the last step in the ladder was an up-step,
-#! to -1, if the last step was a down-step and to 0 for the first entry.
-#! @Arguments G [,refine] [,n]
-#! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "SubgroupLadderForDirectProductOfTransitiveGroups");
 
 #! @Description
 #! Let <A>G</A> be a transitive permutaten group.
