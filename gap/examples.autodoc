@@ -1,0 +1,30 @@
+@BeginChunk exampleSubgroupLadder
+@BeginExampleSession
+#! gap> G := Group([(1,2,3),(4,5,6)]);
+#! Group([ (1,2,3), (4,5,6) ])
+#! gap> SubgroupLadder(G);
+#! [ rec( Group := Group([ (1,2,3), (4,5,6) ]), LastDirection := 0 ),
+#!   rec( Group := Group([ (4,5,6), (4,5), (1,2,3) ]), LastDirection := 1 ),
+#!   rec( Group := Group([ (4,5,6), (4,5), (1,2,3), (1,2) ]), LastDirection := 1 ),
+#!   rec( Group := Group([ (1,2,3), (1,2), (4,5) ]), LastDirection := -1 ),
+#!   rec( Group := Group([ (1,2,3,6), (1,2), (4,5) ]), LastDirection := 1 ),
+#!   rec( Group := Group([ (1,2,3,6), (1,2) ]), LastDirection := -1 ), 
+#!   rec( Group := Group([ (1,2,3,5,6), (1,2) ]), LastDirection := 1), 
+#!   rec( Group := Group([ (1,2,3,4,5,6), (1,2) ]), LastDirection := 1 ) ]
+#! gap> List(last, x->Order(x.Group));
+#! [ 9, 18, 36, 12, 48, 24, 120, 720 ]
+@EndExampleSession
+Note that the first embedding may be horribly bad, even when the group is not maximal in the direct product of its transitive constituents:
+@BeginExampleSession
+#! gap> G := Group([(1,2)(3,4)(5,6)(7,8)(9,10)(11,12)(13,14)(15,16)(17,18)]);
+#! Group([ (1,2)(3,4)(5,6)(7,8)(9,10)(11,12)(13,14)(15,16)(17,18) ])
+#! gap> L := SubgroupLadder(G);;
+#! gap> Order(L[1].Group); Order(L[2].Group);
+#! 2
+#! 512
+#! gap> L := SubgroupLadder(G, true);;
+#! gap> Order(L[1].Group); Order(L[2].Group);
+#! 2
+#! 256
+@EndExampleSession
+@EndChunk

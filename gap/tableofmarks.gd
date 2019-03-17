@@ -2,7 +2,7 @@
 #! Given a group <A>G</A>, this computes the partial table of marks induced by the subgroups of <A>G</A> in <A>list</A>.
 #! @Returns matrix
 #! @Arguments list, G
-#! @ChapterInfo subgroupladders, subgroupladders
+#! @ChapterInfo subgroupladders, tom
 DeclareGlobalFunction( "TableOfMarksPartial" );
 
 #! @Description
@@ -12,7 +12,7 @@ DeclareGlobalFunction( "TableOfMarksPartial" );
 #! By iteration we compute the fixed points of <M>R[G : V]</M> with resprect to the action by right multiplication of <M>U</M>.
 #! @Returns integer
 #! @Arguments G, chain, U
-#! @ChapterInfo subgroupladders, subgroupladders
+#! @ChapterInfo subgroupladders, tom
 DeclareGlobalFunction( "TableOfMarksEntryWithChain" );
 
 #! @Description
@@ -20,5 +20,5 @@ DeclareGlobalFunction( "TableOfMarksEntryWithChain" );
 #! this operation returns a subset of <A>obj</A> that is pointwise fixed by <A>G</A>.
 #! @Returns subset of <A>obj</A>
 #! @Arguments obj, G, act
-#! @ChapterInfo subgroupladders, subgroupladders
+#! @ChapterInfo subgroupladders, tom
 DeclareOperation("FixedPoints_", [IsObject, IsGroup, IsFunction]);
