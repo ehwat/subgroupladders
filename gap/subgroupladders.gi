@@ -306,7 +306,7 @@ function(arg)
 	tmpladder := SubgroupLadderForTransitive(WreathProductInfo(W).groups[2], refine);
 	H := tmpladder[Length(tmpladder)].Group;
 	p := List(Orbits(H)[1]);
-	for l in [1..Length(p)] do
+	for l in [1..Length(p)-1] do
 		Add(tmpladder, rec(Group := SymmetricGroup(p{[1..(Length(p)-l)]}), LastDirection := -1));
 	od;
 	for step in tmpladder{[2..Length(tmpladder)]} do
