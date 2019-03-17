@@ -92,14 +92,6 @@ DeclareGlobalFunction( "SubgroupLadderCheckInput");
 DeclareGlobalFunction( "SubgroupLadderRefineStep");
 
 #! @Description
-#! Construct a ladder on each factor.
-#! By concatenation of the ladders we construct a ladder on the whole group.
-#! @Returns
-#! @Arguments G [,refine] [,n]
-#! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "SubgroupLadderForDirectProductOfTransitiveGroups");
-
-#! @Description
 #! Check whether the group is primitive or imprimitive and construct the ladder.
 #! @Returns
 #! @Arguments

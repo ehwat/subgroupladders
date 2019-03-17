@@ -149,9 +149,9 @@ end);
 InstallGlobalFunction( SubgroupLadderCheckInput, 
 function(arg)
 	local 
-		G,
-		refine,
-		n;
+		G,        # permutation group
+		refine,   # bool
+		n;        # positive integer
 
 	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
 		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a subgroup of the symmetric group on <n> letters and refine is a boolean\n");
@@ -174,8 +174,8 @@ function(arg)
 
 	if (Length(arg) = 3) then
 		n := arg[3];
-		if (not IsInt(n)) then
-			ErrorNoReturn("the third argument must be an int!\n");
+		if (not IsInt(n) or n <= 0) then
+			ErrorNoReturn("the third argument must be an positive integer!\n");
 		fi;
 		if (n < LargestMovedPoint(G)) then
 			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!");
@@ -217,38 +217,10 @@ function(arg)
 	ladder := SubgroupLadderRefineStep(G, H, refine);
 	ladder[1].LastDirection := 0;
 
-	tmparg := ShallowCopy(arg);
-	tmparg[1] := H;
-	tmpladder := CallFuncList(SubgroupLadderForDirectProductOfTransitiveGroups, tmparg);
-	Append(ladder, tmpladder{[2..Length(tmpladder)]});
-
-	return ladder;
-end);
-
-InstallGlobalFunction(SubgroupLadderForDirectProductOfTransitiveGroups, function(arg)
-	local 
-		G,
-		refine,
-		ladder,
-		directfactors,
-		i,
-		tmpladder,
-		step,
-		H,
-		tmparg;
-
-	G := arg[1];
-	if (Length(arg) = 1) then
-		refine := false;
-	else
-		refine := arg[2];
-	fi;
-
-	# by iteration construct ladder for each direct factor
-	ladder := [rec(Group := G, LastDirection := 0)];
-	directfactors := ShallowCopy(DirectFactorsOfGroup(G));
+	# by iteration construct ladder for each transitive direct factor
 	for i in [1..Length(directfactors)] do
-		tmpladder := SubgroupLadderForTransitive(directfactors[i], refine);
+		tmparg := [directfactors[i], refine];
+		tmpladder := CallFuncList(SubgroupLadderForTransitive, tmparg);
 		for step in tmpladder{[2..Length(tmpladder)]} do
 			directfactors[i] := step.Group;
 			H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
@@ -267,6 +239,7 @@ InstallGlobalFunction(SubgroupLadderForDirectProductOfTransitiveGroups, function
 
 	return ladder;
 end);
+
 
 InstallGlobalFunction( SubgroupLadderForTransitive, 
 function(arg)
@@ -291,7 +264,7 @@ function(arg)
 
 	# Check if directfactor is imprimitive
 	if (not IsPrimitive(G, orb)) then
-		ladder := SubgroupLadderForImprimitive(G, refine);
+		ladder := CallFuncList(SubgroupLadderForImprimitive, [G, refine]);
 	else
 		ladder := SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
 	fi;
@@ -302,16 +275,18 @@ end);
 InstallGlobalFunction(SubgroupLadderForImprimitive,
 function(arg)
 	local
-		G,         # imprimitive permutation group
-		refine,    # boolean, if true, ascending chains are placed where index is bad
-		ladder,    # the constructed subgroupladder
-		W,         # wreath product supergroup of G
-		l,         # loop integer variable
-		H,         # loop variable for Groups
-		p,         # moved points of top group
-		step,
-		tmpladder, # placeholder for part of ladder
-		tmpArg;    # placeholder for arguments on SubgroupLadderForYoungGroup call
+		G,             # imprimitive permutation group
+		refine,        # boolean, if true, ascending chains are placed where index is bad
+		ladder,        # the constructed subgroupladder
+		W,             # wreath product supergroup of G
+		l,             # loop integer variable
+		H,             # loop variable for Groups
+		p,             # moved points of top group
+		step,          # loop variable over records of tmpladder 
+		tmpladder,     # placeholder for part of ladder
+		tmparg,        # placeholder for arguments on SubgroupLadderForYoungGroup call
+		directfactors, # direct factors of base group
+		i;             # loop variable for direct factors
 
 	G := arg[1];
 	if (Length(arg) = 1) then
@@ -339,9 +314,28 @@ function(arg)
 		Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
 	od;
 
-	# We have now reached the base group.
-	tmpladder := SubgroupLadderForDirectProductOfTransitiveGroups(ladder[Length(ladder)].Group,refine);
-	Append(ladder, tmpladder{[2..Length(tmpladder)]});
+	# We have now reached the base group. 
+	# We know that the factors of the base group are conjugate by using perms of W
+	# Construct ladder for one factor and by iteration a dual ladder for base group
+	directfactors := List(WreathProductInfo(W).perms, g -> WreathProductInfo(W).groups[1]^g);
+	tmparg := [WreathProductInfo(W).groups[1], refine];
+	tmpladder := CallFuncList(SubgroupLadder, tmparg);
+	for i in [1..Length(directfactors)] do
+		for step in tmpladder{[2..Length(tmpladder)]} do
+			directfactors[i] := step.Group^WreathProductInfo(W).perms[i];
+			H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
+			Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
+		od;
+	od;
+
+	# We have now reached a Young group.
+	H := ladder[Length(ladder)].Group;
+	tmparg := [H];
+	if (Length(arg) = 3) then
+		Add(tmparg, arg[3]);
+	fi;
+	tmpladder := CallFuncList(SubgroupLadderForYoungGroup, tmparg);
+	Append( ladder, tmpladder{[2..Length(tmpladder)]});
 
 	return ladder;
 end);
