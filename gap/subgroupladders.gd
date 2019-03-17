@@ -19,10 +19,10 @@
 #! symmetric group using Schmalz's ladder, see `SubgroupLadderForYoungSubgroup`.
 #! If the transitive constituents are primitive, they will be embedded into
 #! the symmetric group on the orbit directly or using `AscendingChain`, depending on
-#! wether the `refine` option was used. For more details on the ladder constructed 
+#! wether the `refine` option was used. For more details on the ladder constructed
 #! for imprimitive transitive constituents, see the documentation of
 #! `SubgroupLadderForImprimitive`.
-#! 
+#!
 #! @InsertChunk exampleSubgroupLadder
 #! @Returns A subgroup ladder from <A>G</A> to the wanted symmetric group.
 #! The output is a list of records with a `Group` and a `LastDirection` field.
@@ -66,7 +66,7 @@ DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
 
 #! @Description
 #! Let <A>G</A> be a transitive permutaten group.
-#! This checks whether the group is primitive or imprimitive and constructs the ladder.
+#! This checks whether the group is primitive or imprimitive and constructs the ladder
 #! by directly embedding or `SubgroupLadderForImprimitive` respectively
 #! In the first case, the embedding will be refined with `AscendingChain` 
 #! if the second argument is true.
@@ -79,20 +79,34 @@ DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
 DeclareGlobalFunction( "SubgroupLadderForTransitive");
 
 #! @Description
-#! First embed G into the smallest canonical wreath product W containg G.
-#! Then construct ladder from top group of W into the trivial group.
-#! Use this ladder to construct a dual ladder on the wreath product into the base group.
-#! After that construct a ladder from base group into the parent symmetric group.
-#! @Returns
-#! @Arguments G [,refine] [,n]
+#! Let <A>G</A> be an imprimitive permutation group.
+#! First this function embeds <A>G</A> into the smallest canonical wreath product <M>W</M> containg <M>G</M>.
+#! Then construct ladder from top group of <M>W</M> into the trivial group.
+#! Using this ladder, we can construct a ladder from the wreath product to its base group
+#! by iteratively replacing the top group with the groups in the other ladder.
+#! After that construct a ladder from base group to the parent symmetric group. 
+#! The output is the concatenation of these ladders.
+#! @Returns A subgroup ladder from <A>G</A> to the symmetric group on the moved points
+#! The output is a list of records with a `Group` and a `LastDirection` field.
+#! The `LastDirection` entry is set to 1, if the last step in the ladder was an up-step,
+#! to -1, if the last step was a down-step and to 0 for the first entry.
+#! @Arguments G [,refine]
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadderForImprimitive");
 
 #! @Description
-#! Check all block systems of G and construct the smallest canonical wreath product containing G.
-#! For a block system B_1,...,B_k, G induces a permutation group on B, denoted by G/B, and the canonical wreath product is 
-#! Stab_G(B_1) ~ G/B =~ Stab_G(B_1) x ... x Stab_G(B_k) semidirect product with G/B.
-#! @Returns
+#! Let <A>G</A> be an imprimitive permutation group
+#! For every block system of <A>G</A> this constructs the smallest canonical
+#! wreath product containing <A>G</A> corresponding to this block system,
+#! then this returns the smallest one in total.
+#! For a block system <M>B = \{B_1,...,B_k\}</M>, <A>G</A> induces a permutation
+#! group on <M>B</M>, denoted by <M>G/B</M>, and the canonical wreath product is
+#! <Display><Alt Only="LaTeX">
+#! \operatorname{Stab}_G(B_1) \wr G/B \cong \Big(\operatorname{Stab}_G(B_1) \times \cdots \times \operatorname{Stab}_G(B_k)\Big) \rtimes G/B.
+#! </Alt><Alt Not="LaTeX">
+#! Stab_G(B_1) Wr G/B ~= (Stab_{G(B_1) x ... x Stab_G(B_k)) x| G/B.
+#! </Alt></Display> 
+#! @Returns the smallest nontrivial canonical wreath product containing <A>G</A>
 #! @Arguments G
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "WreathProductSupergroupOfImprimitive");
@@ -102,7 +116,7 @@ DeclareGlobalFunction( "WreathProductSupergroupOfImprimitive");
 #! the Young subgroup corresponding to this partition.
 #! Every <M>p_i</M> is a list of positive integers such that the union of the <M>p_i</M> is disjoint.
 #! The Young subgroup equals the internal direct product of the symmetric groups on the p_i
-#! @Returns a group
+#! @Returns the young subgroup <M>Sym(p_1) x ... x Sym(p_k)</M>.
 #! @Arguments part
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "YoungGroupFromPartition" );

@@ -11,7 +11,7 @@ AutoDoc(
 	rec( scaffold :=
 		rec( gapdoc_latex_options :=
 			rec(
-				EarlyExtraPreamble := "\\usepackage{tikz}\\usetikzlibrary{graphs}",
+				EarlyExtraPreamble := "\\usepackage{tikz}\\usetikzlibrary{graphs}\\usepackage{amsmath}",
 				Maintitlesize := "\\fontsize{36}{38}\\selectfont"
 			)
 		),
