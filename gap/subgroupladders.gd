@@ -40,8 +40,8 @@ DeclareGlobalFunction( "SubgroupLadder");
 DeclareGlobalFunction( "SubgroupLadderCheckInput");
 
 #! @Description
-#! This method is called when the index may be critical high in a ladder, whereas G is a subgroup of H.
-#! @Returns A subgroup ladder (in fact an ascending chain) from H to G. If `refine` is true, this is established with `AscendingChain`, otherwise this is the "trivial" chain.
+#! This method is called when the index may be critical high in a ladder, whereas <A>G</A> is a subgroup of <A>H</A>.
+#! @Returns A subgroup ladder (in fact an ascending chain) from <A>H</A> to <A>G</A>. If `refine` is true, this is established with `AscendingChain`, otherwise this is the "trivial" chain.
 #! @Arguments G, H, refine
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadderRefineStep");
@@ -104,7 +104,7 @@ DeclareGlobalFunction( "SubgroupLadderForImprimitive");
 #! <Display><Alt Only="LaTeX">
 #! \operatorname{Stab}_G(B_1) \wr G/B \cong \Big(\operatorname{Stab}_G(B_1) \times \cdots \times \operatorname{Stab}_G(B_k)\Big) \rtimes G/B.
 #! </Alt><Alt Not="LaTeX">
-#! Stab_G(B_1) Wr G/B ~= (Stab_{G(B_1) x ... x Stab_G(B_k)) x| G/B.
+#! Stab_G(B_1) Wr G/B ~= (Stab_G(B_1) x ... x Stab_G(B_k)) x| G/B.
 #! </Alt></Display> 
 #! @Returns the smallest nontrivial canonical wreath product containing <A>G</A>
 #! @Arguments G
