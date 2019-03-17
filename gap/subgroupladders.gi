@@ -249,6 +249,7 @@ function(arg)
 		orb,
 		ladder;
 
+	CallFuncList(SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -264,9 +265,13 @@ function(arg)
 
 	# Check if directfactor is imprimitive
 	if (not IsPrimitive(G, orb)) then
-		ladder := CallFuncList(SubgroupLadderForImprimitive, [G, refine]);
+		ladder := CallFuncList(SubgroupLadderForImprimitive, arg);
 	else
-		ladder := SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
+		if Length(arg) = 3 then
+			ladder := SubgroupLadderRefineStep(G, SymmetricGroup(arg[3]), refine );
+		else
+			ladder := SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
+		fi;
 	fi;
 
 	return ladder;
@@ -288,11 +293,19 @@ function(arg)
 		directfactors, # direct factors of base group
 		i;             # loop variable for direct factors
 
+	CallFuncList(SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
 	else
 		refine := arg[2];
+	fi;
+
+	if not IsTransitive(G) then
+		ErrorNoReturn("G must be a transitive group!\n");
+	fi;
+	if IsPrimitive(G) then
+		ErrorNoReturn("G must be an imprimitive group!\n");
 	fi;
 	
 	# First embed the group into a wreath product on some block system of G
@@ -358,6 +371,16 @@ function(G)
 		SB1,          # S1 induces a permutation group on B[1]
 		o;            # order of the to constructed wreath product
 
+	if not IsPermGroup(G) then
+		ErrorNoReturn("G must be a permutation group!\n");
+	fi;
+	if not IsTransitive(G) then
+		ErrorNoReturn("G must be a transitive group!\n");
+	fi;
+	if IsPrimitive(G) then
+		ErrorNoReturn("G must be an imprimitive group!\n");
+	fi;
+
 	gens := GeneratorsOfGroup(G);
 	order := infinity;
 	W := Group(());
@@ -409,6 +432,19 @@ function(basefactor, topgroup, perms)
 		hgens,          # generators of top group in wreath product induced by maps
 		W,              # wreath product of basefactor and topgroup
 		info;           # wreath product info of W
+
+	if not IsPermGroup(basefactor) then
+		ErrorNoReturn("the first argument must be a permutation group!\n");
+	fi;
+	if not IsPermGroup(topgroup) then
+		ErrorNoReturn("the second argument must be a permutation group!\n");
+	fi;
+	if Length(perms) < LargestMovedPoint(topgroup) then
+		ErrorNoReturn("the third argument must have at least length equal to the largest moved point of the topgroup!");
+	fi;
+	if not IsDuplicateFree(Concatenation(List(perms, p -> List(MovedPoints(basefactor),x -> x^p)))) then
+		ErrorNoReturn("The images of basefactor of the passed permutations are not pairwise disjoint!\n");
+	fi;
 
 	k := Length(perms);
 	topgroupgens := GeneratorsOfGroup(topgroup);
