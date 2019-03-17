@@ -95,7 +95,7 @@ DeclareGlobalFunction( "SubgroupLadderForTransitive");
 DeclareGlobalFunction( "SubgroupLadderForImprimitive");
 
 #! @Description
-#! Let <A>G</A> be an imprimitive permutation group
+#! Let <A>G</A> be an imprimitive permutation group.
 #! For every block system of <A>G</A> this constructs the smallest canonical
 #! wreath product containing <A>G</A> corresponding to this block system,
 #! then this returns the smallest one in total.
