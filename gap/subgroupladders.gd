@@ -5,27 +5,45 @@
 #
 
 #! @Description
-#! Given a list of lists <A>part</A> of positive integers, this will compute
+#! Given a partial partition <A>part</A> <M>= (p_1,…,p_k)</M>, this will compute
 #! the Young subgroup corresponding to this partition.
+#! Every <M>p_i</M> is a list of positive integers such that the union of the <M>p_i</M> is disjoint.
+#! The Young subgroup equals the internal direct product of the symmetric groups on the p_i
 #! @Returns a group
 #! @Arguments part
 #! @ChapterInfo subgroupladders, subgroupladders
-
 DeclareGlobalFunction( "YoungGroupFromPartition" );
+
 #! @Description
-#! Given a list of lists <A>part</A> of positive integers, this will compute
-#! the Young subgroup corresponding to this partition.
-#! This function does not check whether the supplied lists are actually disjoint.
+#! Like the above, but does not tests whether the argument is a list of disjoint lists.
 #! @Returns a group
 #! @Arguments part
 #! @ChapterInfo subgroupladders, subgroupladders
-
 DeclareGlobalFunction( "YoungGroupFromPartitionNC" );
+
 #! @Description
-#! Given a young group <A>G</A>, this will compute a subgroup ladder
+#! Constructs a direct product of a list <A>list</A> of permutation groups
+#! with pairwise disjoint moved points such that all embeddings are canonical.
+#! @Returns the direct product P.
+#! @Arguments list
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
+
+#! @Description
+#! Like the above, but does not tests whether the argument is a list of permutation
+#! groups with pairwise disjoint moved points.
+#! @Returns the direct product P.
+#! @Arguments list
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
+
+#! @Description
+#! Given a Young group <A>G</A>, this will compute a subgroup ladder
 #! from <A>G</A> up to the symmetric group of degree <A>n</A>.
-#! If the second argument is ommited, the largest moved point of <A>G</A> will be
-#! used.
+#! If <A>n</A> is given, it cannot be smaller than the largest moved point of <A>G</A> 
+#! and the symmetric group is the canonical one acting on {1,…,n}.
+#! If the second argument is ommited, <A>n</A> will be the number of moved points of <A>G</A>
+#! and the symmetric group of degree <A>n</A> will act on the moved points of <A>G</A>.
 #! A subgroup ladder is series of subgroups <M>G = H_0,…,H_k = S_n</M> of the
 #! symmetric group such that for every <M>1 \leq i \leq k</M>, <M>H_i</M> is a
 #! subgroup of <M>H_{{i-1}}</M> or <M>H_{{i-1}}</M> is a subgroup of <M>H_i</M>.
@@ -55,38 +73,69 @@ DeclareGlobalFunction( "SubgroupLadderForYoungGroup");
 #! <M>S_(n)</M> is constructed with SubgroupLadderForYoungGroup, which produceds a
 #! subgroup ladder with indiceds at most <M>n</M>.
 #! @Returns a list of groups
-#! @Arguments G, [n]
+#! @Arguments G [,refine] [,n]
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadder");
 
 #! @Description
-#! Given a transitive permutation group <A>G</A> on <A>Omega</A>, 
-#! This function computes the wreath product corresponding to a minimal 
-#! block system of <A>G</A> as a supergroup of the permutation group <A>G</A>.
-#! @Returns the Wreath Product 
-#! @Arguments G, [Omega]
+#! @Returns
+#! @Arguments
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "EmbeddingWreathProduct");
+DeclareGlobalFunction( "SubgroupLadderCheckInput");
 
 #! @Description
+#! This method is called when the index may be critical high in a ladder, whereas G is a subgroup of H
+#! If refine is true, try to construct an ascending chain from G into H.
+#! @Returns
+#! @Arguments G, H, refine
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "EmbeddingWreathProductOp");
+DeclareGlobalFunction( "SubgroupLadderRefineStep");
 
 #! @Description
-#! Constructs a direct product of a list <A>list</A> of permutation groups
-#! with pairwise disjoint moved points such that all embeddings are canonical,
-#! @Returns the direct product P.
-#! @Arguments list
+#! Construct a ladder on each factor.
+#! By concatenation of the ladders we construct a ladder on the whole group.
+#! @Returns
+#! @Arguments G [,refine] [,n]
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenaming");
+DeclareGlobalFunction( "SubgroupLadderForDirectProductOfTransitiveGroups");
 
 #! @Description
-#! Like the above, but does not tests whether the argument is a list of permutation
-#! groups with pairwise disjoint moved points.
-#! @Returns the direct product P.
-#! @Arguments list
+#! Check whether the group is primitive or imprimitive and construct the ladder.
+#! @Returns
+#! @Arguments
 #! @ChapterInfo subgroupladders, subgroupladders
-DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
+DeclareGlobalFunction( "SubgroupLadderForTransitive");
 
+#! @Description
+#! First embed G into the smallest canonical wreath product W containg G.
+#! Then construct ladder from top group of W into the trivial group.
+#! Use this ladder to construct a dual ladder on the wreath product into the base group.
+#! After that construct a ladder from base group into the parent symmetric group.
+#! @Returns
+#! @Arguments G [,refine] [,n]
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "SubgroupLadderForImprimitive");
 
-DeclareGlobalFunction( "SubgroupLadderWreath");
+#! @Description
+#! Check all block systems of G and construct the smallest canonical wreath product containing G.
+#! For a block system B_1,...,B_k, G induces a permutation group on B, denoted by G/B, and the canonical wreath product is 
+#! Stab_G(B_1) ~ G/B =~ Stab_G(B_1) x ... x Stab_G(B_k) semidirect product with G/B.
+#! @Returns
+#! @Arguments G
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "WreathProductSupergroupOfImprimitive");
+
+#! @Description
+#! Construct a wreath product, such that the basegroup is the direct product of the conjugate groups of basefactors by using perms
+#! The top group acts on the basegroup by permuting the factors and conjugating with the corresponding perms
+#! @Returns
+#! @Arguments basefactor, topgroup, perms
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "WreathProductWithoutRenaming");
+
+#! @Description
+#! Use the Schreier tree in the stabilizer chain of G to trace some element g in G s.t. a^g=b
+#! @Returns
+#! @Arguments G, a, b
+#! @ChapterInfo subgroupladders, subgroupladders
+DeclareGlobalFunction( "SchreierTreeTrace_");

@@ -4,9 +4,6 @@
 # Implementations
 #
 
-## Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
-## Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
-## The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartition,
 function(part)
 	if (IsDuplicateFree(Concatenation(part))) then
@@ -15,16 +12,11 @@ function(part)
 	ErrorNoReturn("The Argument must me a list of disjoint lists!\n");
 end);
 
-## Generate a Young subgroup of a partial partition part = (p_1, ..., p_k) of some positive integer n.
-## Every p_i is a list of positive integers such that the union of the p_i is disjoint and is a subset of {1,...n}.
-## The Young subgroup is then the direct product of the symmetric groups on the p_i.
 InstallGlobalFunction( YoungGroupFromPartitionNC,
 function( part )
 	return DirectProductPermGroupsWithoutRenamingNC(List(part, SymmetricGroup));
 end);
 
-## Constructs a direct product of a list <A>list</A> of permutation groups
-## with pairwise disjoint moved points such that all embeddings are canonical.
 InstallGlobalFunction( DirectProductPermGroupsWithoutRenaming,
 function( list )
 	if ForAny(list, G -> not IsPermGroup(G)) then
@@ -36,8 +28,6 @@ function( list )
 	return DirectProductPermGroupsWithoutRenamingNC( list );
 end);
 
-## Like the above, but does not tests whether the argument is a list of permutation
-## groups with pairwise disjoint moved points.
 InstallGlobalFunction( DirectProductPermGroupsWithoutRenamingNC,
 function( list )
 	local
@@ -68,7 +58,7 @@ function( list )
 		Add(perms, ());
 	od;
 
-	# Generate the Young subgroup Y and add the DirectProductInfo info to Y.
+	# Generate the direct product Y and add the DirectProductInfo info to Y.
 	P := Group(generators);
 	info := rec( groups := grps,
 	             olds := olds,
@@ -81,27 +71,21 @@ function( list )
 	return P;
 end);
 
-## Given a young group G, this will compute a subgroup ladder
-## from G up to the symmetric group of degree n.
-## If the second argument is ommited, the largest moved point of G will be
-## used. We can guarantee that all
-## the indices are at most the degree n of the permutation group.
 InstallGlobalFunction( SubgroupLadderForYoungGroup,
 function(arg)
 	local
 		G,            # the provided young subgroup we will start the construction from
 		orb,          # the orbits of the permutation group G
 		n,            # degree of the parent symmetric group
-		i,            # loop variable
+		ladder,       # the ladder is a list containing triples [partition, lastDirection]
+		              # lastDirection is an integer -1, 1 or 0 depending on whether the last step in the chain was
+		              # down, up or the group was the first in the ladder.
+		partition,    # partition = (p_1, ..., p_k).
+		              # Every p_i is a list of positive integers such that the union of the p_i is disjoint.
 		k,            # size of current partition
-		ladder,       # the ladder is a list containing pairs [partition, mapping]
-		partition,    # partition is a list of positive integers (a_1, ..., a_k) such that
-		              # a_1 is the biggest integer of the list.
-		mapping,      # mapping is a list of positive integers (m_1, ..., m_n) such that
-		              # 1 <= m_i <= k for all i.
-		pair,         # a entry of the ladder [partition, mapping] used to construct a young subgroup
-		output;       # a list of groups forming the ladder of G into S_n
-
+		p;            # loop variable, integer in p_k in partition.
+		
+	# Check Input and Initialize the variables
 	if (Length(arg) <> 1 and Length(arg) <> 2) then
 		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>]), where <G> is a young subgroup of the symmetric group on <n> letters\n");
 	fi;
@@ -111,227 +95,358 @@ function(arg)
 		n := arg[2];
 	else
 		G := arg[1];
-		n := LargestMovedPoint(G);
+		n := NrMovedPoints(G);
 	fi;
 
-
-	# Check if G is a permuatation group
 	if (not IsPermGroup(G)) then
 		ErrorNoReturn("the first argument must be a permutation group!\n");
 	fi;
 
-	# Initialize the variables
-	orb := List(Orbits(G, [1..n]));
-	SortBy(orb, x->-Length(x));
+	if(Length(arg) = 2) then
+		if (not IsInt(n) or n <= 0) then
+			ErrorNoReturn("the second argument must be a positive integer!\n");
+		fi;
+		if (n < LargestMovedPoint(G)) then
+			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!\n");
+		fi;
+		partition := List( Orbits(G, [1..n]), o -> List(o) );
+	else
+		partition := List( Orbits(G), o -> List(o));
+	fi;
 
-	output := [];
-
-	if (YoungGroupFromPartition(orb) <> G) then
+	if (YoungGroupFromPartitionNC(partition) <> G) then
 		ErrorNoReturn("the first argument must be a young subgroup!\n");
 	fi;
 
-	if (n < LargestMovedPoint(G)) then
-		ErrorNoReturn("degree of desired parent symmetric group is smaller than the degree of G!\n");
-	fi;
-
-	partition := List(orb, Length);
-	mapping := List([1..n], x -> PositionProperty([1..Length(orb)], i -> x in orb[i]));
-	ladder := [[List(partition), List(mapping)]];
+	ladder := [rec(Group := G, LastDirection := 0)];
+	k := Length(partition);
 
 	# Start the iterative construction of the ladder
-	while (Length(partition) <> 1 or partition[1] < n) do
-		# This is the case where partition = (a) and the current young subgroup is S_{a}.
-		# Add the group S_{a+1} to the ladder
+	while (k <> 1 or Length(partition[1]) < n) do
+		# This is the case where partition = (p_1, p_2, p_3, ..., p_k), p in p_k and |p_k| = 1,
+		# Add the young subgroup with partition (p_1 U {p}, p_2, p_3, ..., p_{k-1})
 		# and continue iteration with this group.
-		if (Length(partition) = 1) then
-			mapping[Position(mapping, 0)] := 1;
-			partition[1] := partition[1] + 1;
-			Add(ladder, [List(partition), List(mapping)]);
+		if (Length(partition[k]) = 1) then
+			p := Remove(partition[k]);
+			Remove(partition);
+			Add(partition[1], p);
+			Add(ladder, rec(Group:=YoungGroupFromPartitionNC(partition), LastDirection:=1));
+			k := k - 1;
+		# This is the case where partition = (p_1, p_2, p_3, ..., p_k), p in p_k and |p_k| >= 2.
+		# First add the young subgroup with partition (p_1, p_2, p_3, ..., p_k - {p}, {p}).
+		# and continue iteration with this group.
 		else
-			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 = 1.
-			# Add the young subgroup with partition (a_1, a_3, ..., a_k)
-			# and continue iteration with this group.
-			if (partition[2] = 1) then
-				Remove(partition, 2);
-				for i in [1..n] do
-					if (mapping[i]) > 1 then
-						mapping[i] := mapping[i] - 1;
-					fi;
-				od;
-				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition), List(mapping)]);
-			# This is the case where partition = (a_1, a_2, a_3, ..., a_k) and a_2 > 1.
-			# First add the young subgroup with partition (a_1, 1, a_2 - 1, a_3, ..., a_k).
-			# Then add the young subgroup with partition (a_1 + 1, a_2 - 1, a_3, ..., a_k)
-			# and continue iteration with this group.
-			else
-				mapping[Position(mapping, 2)] := Length(partition)+1;
-				partition[2] := partition[2] - 1;
-				Add(partition, 1);
-				Add(ladder, [List(partition), List(mapping)]);
-
-				mapping[Position(mapping, Length(partition))] := 1;
-				Remove(partition);
-				partition[1] := partition[1] + 1;
-				Add(ladder, [List(partition), List(mapping)]);
-			fi;
+			p := Remove(partition[k]);
+			Add(partition, [p]);
+			Add(ladder, rec(Group:=YoungGroupFromPartitionNC(partition), LastDirection:=-1));
+			k := k + 1;
 		fi;
 	od;
 
-	# Construct the young subgroups of the pairs [partition, mapping] stored in ladder
-	for pair in ladder do
-		k := Length(pair[1]);
-		mapping := pair[2];
-		Add(output, YoungGroupFromPartition(List([1..k], i -> Filtered([1..n], x -> i = mapping[x]))));
-	od;
-
-	return output;
+	return ladder;
 end);
 
-## Given a permutation group G, this will compute a subgroup ladder
-## from G up to the symmetric group of degree n.
-## If the second argument is ommited, the largest moved point of G will be
-## used.
-## A subgroup ladder is series of subgroups G = H_0,…,H_k = S_n of the
-## symmetric group such that for every 1 <= i <= k, H_i is a
-## subgroup of H_{i-1} or H_{i-1} is a subgroup of H_i.
-## This functions embeds G first into the direct product of the induced
-## permutation groups on the orbits. This then is embedded into the young group
-## corresponding to the orbits by iteratively replacing the restrictions
-## of G on each orbit first with  the wreath product of
-## symmetric groups corresponding to a minimal block system of
-## that transitive constituent and then with the symmetric group on that orbit.
-## Up to this step, the indices in the subgroup chain can be preetty high.
-## This chain is followed by a subgroup ladder from the young subgroup to
-## S_(n) is constructed with SubgroupLadderForYoungGroup, which produceds a
-## subgroup ladder with indiceds at most n.
+InstallGlobalFunction( SubgroupLadderCheckInput, 
+function(arg)
+	local 
+		G,
+		refine,
+		n;
+
+	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
+		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a subgroup of the symmetric group on <n> letters and refine is a boolean\n");
+	fi;
+
+	G := arg[1];
+	if (not IsPermGroup(G)) then
+		ErrorNoReturn("the first argument must be a permutation group!\n");
+	fi;
+
+	if (Length(arg) = 1) then
+		refine := false;
+	else
+		refine := arg[2];
+	fi;
+
+	if (not IsBool(refine)) then
+		ErrorNoReturn("the second argument must be a bool!\n");
+	fi;
+
+	if (Length(arg) = 3) then
+		n := arg[3];
+		if (not IsInt(n)) then
+			ErrorNoReturn("the third argument must be an int!\n");
+		fi;
+		if (n < LargestMovedPoint(G)) then
+			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!");
+		fi;
+	fi;
+end);
+
 InstallGlobalFunction( SubgroupLadder,
 function(arg)
 	local
+		refine,
 		G,
 		H,
 		n,
 		i,
 		orbs,
 		gens,
-		subgroupladder,
+		ladder,
 		tmpladder,
-		directfactors,
-		gensSo,
-		Y;
+		step,
+		tmparg,
+		directfactors;
 
-	if (Length(arg) <> 1 and Length(arg) <> 2) then
-		ErrorNoReturn("usage: SubgroupLadder(<G>[, <n>]), where <G> is a intransitive subgroup of the symmetric group on <n> letters\n");
-	fi;
-
-	if (Length(arg) = 2) then
-		G := arg[1];
-		n := arg[2];
+	CallFuncList(SubgroupLadderCheckInput,arg);
+	G := arg[1];
+	if (Length(arg) = 1) then
+		refine := false;
 	else
-		G := arg[1];
-		n := LargestMovedPoint(G);
+		refine := arg[2];
 	fi;
 
-	orbs := List(Orbits(G));
-	gens := List(GeneratorsOfGroup(G));
-
-	# initialize directfactors as the list of the induced permutation groups on the orbits
-	directfactors := List(orbs, o->Group(List(gens, x->RestrictedPerm(x, o))));
-	# embed G into the direct product of these transitive constituents.
-	# As the index may be very high, we compute a Ascendingchain
+	# embed G into the direct product of the transitive constituents of G.
+	# note that G is a subdirect product of the transtive constituents,
+	# hence we embed a subdirect product into a direct product. Index may be large.
+	gens := GeneratorsOfGroup(G);
+	orbs := Orbits(G);
+	directfactors := List(orbs, o->Group(DuplicateFreeList(List(gens, x->RestrictedPerm(x, o)))));
 	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
-	subgroupladder := AscendingChain(H, G);
+	ladder := SubgroupLadderRefineStep(G, H, refine);
+	ladder[1].LastDirection := 0;
 
-	for i in [1..Length(orbs)] do
-		if (not IsPrimitive(directfactors[i], orbs[i])) then
-			directfactors[i] := EmbeddingWreathProduct(directfactors[i], orbs[i]);
-			Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
-			gensSo := GeneratorsOfGroup(SymmetricGroup(orbs[i]));
-			if (not IsSubgroup(directfactors[i], Group(gensSo))) then
-				tmpladder := SubgroupLadderWreath(WreathProductInfo(directfactors[i]).components);
-				for H in tmpladder do
-					directfactors[i] := H;
-					Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
-				od;
-			fi;
-		else
-			tmpladder := AscendingChain(SymmetricGroup(orbs[i]), directfactors[i]);
-			for H in tmpladder{[2..Length(tmpladder)]} do
-				directfactors[i] := H;
-				Add(subgroupladder, DirectProductPermGroupsWithoutRenamingNC(directfactors));
-			od;
-		fi;
+	tmparg := ShallowCopy(arg);
+	tmparg[1] := H;
+	tmpladder := CallFuncList(SubgroupLadderForDirectProductOfTransitiveGroups, tmparg);
+	Append(ladder, tmpladder{[2..Length(tmpladder)]});
+
+	return ladder;
+end);
+
+InstallGlobalFunction(SubgroupLadderForDirectProductOfTransitiveGroups, function(arg)
+	local 
+		G,
+		refine,
+		ladder,
+		directfactors,
+		i,
+		tmpladder,
+		step,
+		H,
+		tmparg;
+
+	G := arg[1];
+	if (Length(arg) = 1) then
+		refine := false;
+	else
+		refine := arg[2];
+	fi;
+
+	# by iteration construct ladder for each direct factor
+	ladder := [rec(Group := G, LastDirection := 0)];
+	directfactors := ShallowCopy(DirectFactorsOfGroup(G));
+	for i in [1..Length(directfactors)] do
+		tmpladder := SubgroupLadderForTransitive(directfactors[i], refine);
+		for step in tmpladder{[2..Length(tmpladder)]} do
+			directfactors[i] := step.Group;
+			H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
+			Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
+		od;
 	od;
 
-	Y := Remove(subgroupladder);
-	Append( subgroupladder, SubgroupLadderForYoungGroup(Y, n) );
-	return subgroupladder;
+	# now we construct a ladder for the remaining young group
+	H := ladder[Length(ladder)].Group;
+	tmparg := [H];
+	if (Length(arg) = 3) then
+		Add(tmparg, arg[3]);
+	fi;
+	tmpladder := CallFuncList(SubgroupLadderForYoungGroup, tmparg);
+	Append( ladder, tmpladder{[2..Length(tmpladder)]});
+
+	return ladder;
 end);
 
-## Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-## this function will compute an embedding into the wreath product of S_m
-## with S_k where k is the size of a minimal non-trivial block system and m
-## is the size of the blocks.
-## The output is [lambda, emb], where emb is the embedding and lambda is a list,
-## such that G and the image of G under emb are permutation isomorphic,
-## that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
-InstallGlobalFunction( EmbeddingWreathProduct,
-function(G, Om)
-	local blocks, lengths, rep;
-
-
-	# We compute a block system of median length
-	blocks := AllBlocks(G);
-	lengths := List(blocks, Length);
-	lengths := Set(lengths);
-	rep := First(blocks, x -> Length(x) = Median(lengths));
-	blocks := Orbit(G, rep, OnSets);
-
-	# compute the wreath product corresponding to this block system
-	return EmbeddingWreathProductOp(blocks);
-end);
-
-## Given a permutation group G and a set Om, such that G acts imprimitive on Om,
-## this function will compute an embedding into the wreath product of S_m
-## with S_k where k is the size of a minimal non-trivial block system and m
-## is the size of the blocks.
-## The output is [lambda, emb], where emb is the embedding and lambda is a list,
-## such that G and the image of G under emb are permutation isomorphic,
-## that is lambda[o^g] = (lambda[o])^(g)emb for all o in Om.
-InstallGlobalFunction( EmbeddingWreathProductOp,
-function(B)
+InstallGlobalFunction( SubgroupLadderForTransitive, 
+function(arg)
 	local
-		k,              # size of blocks system B
-		m,              # size of the blocks in B (they all have equal size)
-		W,              # the wreath product of S_m with S_k
-		basegens,       # generators of the base group of W, being (S_m)^k
-		hgens,          # generators of the top group
-		perms,          # list of permutation of integers
-		                # inducing the embedding of S_m into the copies in W
+		G,
+		refine,
+		orb,
+		ladder;
+
+	G := arg[1];
+	if (Length(arg) = 1) then
+		refine := false;
+	else
+		refine := arg[2];
+	fi;
+
+	if not IsTransitive(G) then
+		ErrorNoReturn("G must be a transitive group!\n");
+	fi;
+
+	orb := List(Orbits(G)[1]);
+
+	# Check if directfactor is imprimitive
+	if (not IsPrimitive(G, orb)) then
+		ladder := SubgroupLadderForImprimitive(G, refine);
+	else
+		ladder := SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
+	fi;
+
+	return ladder;
+end);
+
+InstallGlobalFunction(SubgroupLadderForImprimitive,
+function(arg)
+	local
+		G,         # imprimitive permutation group
+		refine,    # boolean, if true, ascending chains are placed where index is bad
+		ladder,    # the constructed subgroupladder
+		W,         # wreath product supergroup of G
+		l,         # loop integer variable
+		H,         # loop variable for Groups
+		p,         # moved points of top group
+		step,
+		tmpladder, # placeholder for part of ladder
+		tmpArg;    # placeholder for arguments on SubgroupLadderForYoungGroup call
+
+	G := arg[1];
+	if (Length(arg) = 1) then
+		refine := false;
+	else
+		refine := arg[2];
+	fi;
+	
+	# First embed the group into a wreath product on some block system of G
+	W := WreathProductSupergroupOfImprimitive(G);
+	ladder := SubgroupLadderRefineStep( G, W, refine);
+	ladder[1].LastDirection := 0;
+
+	# Next embed the top group of wreath product into a symmetric group
+	# Then go down from symmetric group to trivial group
+	# Construct the dual ladder for the whole wreath product
+	tmpladder := SubgroupLadderForTransitive(WreathProductInfo(W).groups[2], refine);
+	H := tmpladder[Length(tmpladder)].Group;
+	p := List(Orbits(H)[1]);
+	for l in [1..Length(p)] do
+		Add(tmpladder, rec(Group := SymmetricGroup(p{[1..(Length(p)-l)]}), LastDirection := -1));
+	od;
+	for step in tmpladder{[2..Length(tmpladder)]} do
+		H := WreathProductWithoutRenaming(WreathProductInfo(W).groups[1], step.Group, WreathProductInfo(W).perms);
+		Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
+	od;
+
+	# We have now reached the base group.
+	tmpladder := SubgroupLadderForDirectProductOfTransitiveGroups(ladder[Length(ladder)].Group,refine);
+	Append(ladder, tmpladder{[2..Length(tmpladder)]});
+
+	return ladder;
+end);
+
+InstallGlobalFunction(WreathProductSupergroupOfImprimitive, 
+function(G)
+	local 
+		gens,         # generators of group G
+		order,        # order of smallest wreath product
+		W,            # smallest wreath product
+		allblocks,    # representants of all possible block systems of G
+		rep,          # loop variable, representant in allblocks of some block system
+		B,            # block system of G for the represenant rep
+		k,            # length of block system B
+		gens_bar,     # gens induce permutations of block system B, induce generators of top group
+		perms,        # list of translations from block B[1] into block B[i], 
+		              # i.e. perms[i] is an element in G s.t. B[1]^perms[i] = B[i]
+		l,            # loop variable for construction of t
+		S1,           # stabilizer group of B[1]
+		SB1,          # S1 induces a permutation group on B[1]
+		o;            # order of the to constructed wreath product
+
+	gens := GeneratorsOfGroup(G);
+	order := infinity;
+	W := Group(());
+	allblocks := AllBlocks(G);
+
+	for rep in allblocks do
+		B := Orbit(G, rep, OnSets);
+		k := Length(B);
+		gens_bar := List(gens, g -> PermList(List([1..k], i -> PositionProperty(B, b -> B[i][1]^g in b ))));
+		gens_bar := Set(gens_bar);
+		RemoveSet(gens_bar, ());
+		perms := List([1..k], i -> ());
+		for l in [2..k] do
+			perms[l] := SchreierTreeTrace_(G, B[1][1], B[l][1]);
+		od;
+
+		S1 := Stabilizer(G,B[1],OnSets);
+		SB1 := Set(List(GeneratorsOfGroup(S1), g -> RestrictedPerm(g,B[1])));
+		RemoveSet(SB1, ());
+		if (IsEmpty(SB1)) then
+			Add(SB1, ());
+		fi;
+
+		o := Order(Group(SB1))^k*Order(Group(gens_bar));
+		if o >= order then
+			continue;
+		fi;
+		order := o;
+		W := WreathProductWithoutRenaming(Group(SB1), Group(gens_bar), perms);
+	od;
+
+	return W;
+end);
+
+InstallGlobalFunction(WreathProductWithoutRenaming,
+function(basefactor, topgroup, perms)
+	local
+		k,              # number of copies of basefactor in basegroup
+		topgroupgens,   # generators of topgroup
+		basefactorgens, # generators of basefactorgens
+		img,            # list of images which represent the action of top group on base group
+		x,              # loop variable, integer representing some generator of topgroup
+		topgen,         # some generator of topgroupgens
+		i,              # loop variable, integer representing the i-th factor in base group
+		g,              # loop variable, some generator of i-th factor in base group
+		basegens,       # generators of base group of wreath product
+		base,           # base group generated by basegens
+		maps,           # list of maps which represent the action of top group on base group
+		hgens,          # generators of top group in wreath product induced by maps
+		W,              # wreath product of basefactor and topgroup
 		info;           # wreath product info of W
 
-	# Initialize all variables
-	k := Length(B);
-	m := Length(B[1]);
-
-	# construct the wreath product info
-	basegens := Concatenation( List([1..k], i-> List(GeneratorsOfGroup(SymmetricGroup(B[i]))) ));
-	hgens := [Product([1..m], i -> CycleFromList(List([1..k], j->B[j][i])), ()), MappingPermListList(B[1],B[2])];
-	perms := List( [1..k], i-> MappingPermListList([1..m], B[i]) );
-
+	k := Length(perms);
+	topgroupgens := GeneratorsOfGroup(topgroup);
+	basefactorgens := GeneratorsOfGroup(basefactor);
+	img := [];
+	for x in [1..Length(topgroupgens)] do
+		Add(img, []);
+		topgen := topgroupgens[x];
+		for i in [1..k] do
+			for g in basefactorgens do
+				Add(img[x], g^perms[i^(topgen)]);
+			od;
+		od;
+	od;
+	basegens := Concatenation( List([1..k], i->List(basefactorgens, g -> g^perms[i])) );
+	base := Group(basegens);
+	maps := List([1..Length(topgroupgens)], x -> GroupHomomorphismByImagesNC(base, base, basegens, img[x]) );
+	hgens := List(maps, ConjugatorOfConjugatorIsomorphism);
 	W := Group(Concatenation(basegens, hgens));
+
 	info := rec(
-		I := SymmetricGroup(k),
-		alpha := IdentityMapping( SymmetricGroup(k) ),
-		base := Group(basegens),
+		I := topgroup,
+		alpha := IdentityMapping( topgroup ),
+		base := base,
 		basegens := basegens,
-		components := ShallowCopy(B),
+		components := List([1..k], i -> List(MovedPoints(basefactor), x -> x^perms[i])),
 		degI := k,
 		embeddingType := NewType(
 			GeneralMappingsFamily(PermutationsFamily,PermutationsFamily),
 			IsEmbeddingImprimitiveWreathProductPermGroup),
 		embeddings := [],
-		groups := [SymmetricGroup(m), SymmetricGroup(k)],
+		groups := [basefactor, topgroup],
 		hgens := hgens,
 		permimpr := true,
 		perms := perms
@@ -340,28 +455,45 @@ function(B)
 	return W;
 end);
 
-InstallGlobalFunction(SubgroupLadderWreath,
-function(blocks)
-	local
-		ladder,    # the constructed subgroupladder
-		i,         # loop integer variable
-		G,         # loop variable for Groups
-		l;         # the number of blocks
-
-	ladder := [];
-	l := Length(blocks);
-
-	# the first group is not in the output
-
-	for i in Reversed([2..l-1]) do
-		G := DirectProductPermGroupsWithoutRenamingNC( Concatenation([EmbeddingWreathProductOp(blocks{[1..i]})], List([i+1..l], k -> SymmetricGroup(blocks[k]))));
-		Add(ladder, G);
+InstallGlobalFunction(SchreierTreeTrace_, 
+function(G, a, b)
+	local 
+		T,     # Schreier tree
+		c,     # base point in T
+		g,     # element in G s.t. a^g = c
+		h,     # element in G s.t. b^h = c
+		x,     # loop variable, point 
+		t;     # loop variable, element in G
+	T := StabChain(G).transversal;
+	c := StabChain(G).orbit[1];
+	g := ();
+	h := ();
+	x := a;
+	while x <> c do
+		t := T[x];
+		x := x^t;
+		g := g * t;
 	od;
-
-	G := YoungGroupFromPartitionNC(blocks);
-
-	Append(ladder, SubgroupLadderForYoungGroup(G));
-	return ladder;
+	x := b;
+	while x <> c do
+		t := T[x];
+		x := x^t;
+		h := h * t;
+	od;
+	return g * h^(-1);
 end);
 
+InstallGlobalFunction( SubgroupLadderRefineStep,
+function(G, H, refine)
+	local
+		ladder;
+
+	if refine then
+		ladder := List(AscendingChain(H, G), x -> rec(Group:=x, LastDirection:=1));
+	else
+		ladder :=  List(DuplicateFreeList([G, H]), x -> rec(Group:=x, LastDirection:=1));
+	fi;
+
+	return ladder;
+end);
 # vim: set noet ts=4:

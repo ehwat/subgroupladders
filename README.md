@@ -5,7 +5,7 @@ The algorithm was described by Bernd Schmalz in [1, Theorem 3.1.1].
 
 Solutions of some problems in group theory can relatively easy be transferred to a sub- or supergroup if the index is small.
 Let G be a permutation group on the set {1,...,n}.
-So one might try to find a series of subgroups G = H_0,...,H_k = S_n of the symmetric group S_nsuch that H_{i-1} is a subgroup of H_i for every i and transfer the solution of a problem for the symmetric group step by step to G.
+So one might try to find a series of subgroups G = H_0,...,H_k = S_n of the symmetric group S_na such that H_{i-1} is a subgroup of H_i for every i and transfer the solution of a problem for the symmetric group step by step to G.
 
 Sometimes it is not possible to find such a series with small indices between consecutive subgroups.
 This is where subgroup ladders may make sense:
@@ -41,7 +41,6 @@ A subgroup ladder may look like this:
 ```
 
 
-TODO: add a description of your package; perhaps also instructions how how to
 install and use it, resp. where to find out more
 
 ## Documentation
@@ -51,7 +50,7 @@ It can also be generated locally with `gap makedoc.g`.
 
 ## Contact
 
-You can report issues on GitHub at <https://github.com/ehwat/subgroup-ladders>.
+You can report issues on GitHub at <https://github.com/ehwat/subgroupladders>.
 
 
 ## License
