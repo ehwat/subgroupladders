@@ -361,7 +361,7 @@ function(G)
 		order,        # order of smallest wreath product
 		W,            # smallest wreath product
 		allblocks,    # representants of all possible block systems of G
-		rep,          # loop variable, representant in allblocks of some block system
+		repBlock,     # loop variable, representant in allblocks of some block system
 		B,            # block system of G for the represenant rep
 		k,            # length of block system B
 		gens_bar,     # gens induce permutations of block system B, induce generators of top group
@@ -387,8 +387,8 @@ function(G)
 	W := Group(());
 	allblocks := AllBlocks(G);
 
-	for rep in allblocks do
-		B := Orbit(G, rep, OnSets);
+	for repBlock in allblocks do
+		B := Orbit(G, repBlock, OnSets);
 		k := Length(B);
 		gens_bar := List(gens, g -> PermList(List([1..k], i -> PositionProperty(B, b -> B[i][1]^g in b ))));
 		gens_bar := Set(gens_bar);
