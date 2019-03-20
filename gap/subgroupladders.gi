@@ -188,18 +188,17 @@ end);
 InstallGlobalFunction( SubgroupLadder,
 function(arg)
 	local
-		refine,
-		G,
-		H,
-		n,
-		i,
-		orbs,
-		gens,
-		ladder,
-		tmpladder,
-		step,
-		tmparg,
-		directfactors;
+		G,             # permutation group
+		refine,        # boolean, if true, ascending chains are placed where index is large
+		gens,          # generators of G
+		orbs,          # orbits of G
+		directfactors, # direct factors of the direct product of transitive constituents of G
+		H,             # placeholder for group in subgroupladder
+		i,             # loop variable for direct factors
+		tmpladder,     # placeholder for part of ladder
+		tmparg,        # placeholder for arguments on SubgroupLadder... variants calls
+		step,          # loop variable over records of tmpladder 
+		ladder;        # the constructed subgroupladder
 
 	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
@@ -246,10 +245,10 @@ end);
 InstallGlobalFunction( SubgroupLadderForTransitive, 
 function(arg)
 	local
-		G,
-		refine,
-		orb,
-		ladder;
+		G,             # transitive permutation group
+		refine,        # boolean, if true, ascending chains are placed where index is large
+		orb,           # orbit of G
+		ladder;        # the constructed subgroupladder
 
 	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
