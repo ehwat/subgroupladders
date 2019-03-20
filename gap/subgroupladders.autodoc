@@ -30,8 +30,7 @@ The main function of the subgroupladders package SubgroupLadder chains them toge
 @Section tom
 @SectionTitle Computing the Table of Marks
 
-The table of marks is a powerful concept with many applications in Combinatorics.
-It was introduced by Burnside in 1909 in <Cite Key="MR1575665"/>.
+The table of marks is a concept introduced by Burnside in 1909 in <Cite Key="MR1575665"/> with many applications in Combinatorics.
 
 Let <M>G</M> be a finite group.
 Let <M>U_1,...,U_n</M> be representatives of the conjugacy classes of subgroups of <M>G</M>.
