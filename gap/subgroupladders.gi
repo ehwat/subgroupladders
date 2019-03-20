@@ -32,7 +32,7 @@ InstallGlobalFunction( DirectProductPermGroupsWithoutRenamingNC,
 function( list )
 	local
 		G,           # loop variable over the direct factors
-		p,           # Moved Points of G
+		mp,           # Moved Points of G
 		P,           # the direct product we will return
 		generators,  # the generators of P.
 		grps,        # record entry of info, direct factor groups
@@ -52,11 +52,11 @@ function( list )
 
 	# Generate the record entries of info.
 	for G in list do
-		p := MovedPoints(G);
+		mp := MovedPoints(G);
 		Append(generators, GeneratorsOfGroup(G));
 		Add(grps, G);
-		Add(olds, p);
-		Add(news, p);
+		Add(olds, mp);
+		Add(news, mp);
 		Add(perms, ());
 	od;
 
