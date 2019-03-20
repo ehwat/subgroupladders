@@ -152,8 +152,8 @@ InstallGlobalFunction( _SubgroupLadderCheckInput,
 function(arg)
 	local 
 		G,        # permutation group
-		refine,   # bool
-		n;        # positive integer
+		refine,   # bool, whether the algorithm should try using ascending chains whenever the index may be large
+		n;        # positive integer, the degree of the parent symmetric group
 
 	if (Length(arg) <> 1 and Length(arg) <> 2 and Length(arg) <> 3) then
 		ErrorNoReturn("usage: SubgroupLadder(<G>[,<refine>][, <n>]), where <G> is a subgroup of the symmetric group on <n> letters and refine is a boolean\n");
