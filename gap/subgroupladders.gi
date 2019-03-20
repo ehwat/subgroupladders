@@ -526,4 +526,3 @@ function(G, H, refine)
 
 	return ladder;
 end);
-# vim: set noet ts=4:
