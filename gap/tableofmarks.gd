@@ -15,10 +15,4 @@ DeclareGlobalFunction( "TableOfMarksPartial" );
 #! @ChapterInfo subgroupladders, tom
 DeclareGlobalFunction( "TableOfMarksEntryWithChain" );
 
-#! @Description
-#! Given a group <A>G</A> with an action <A>act</A> on an object <A>obj</A>,
-#! this operation returns a subset of <A>obj</A> that is pointwise fixed by <A>G</A>.
-#! @Returns subset of <A>obj</A>
-#! @Arguments obj, G, act
-#! @ChapterInfo subgroupladders, tom
-DeclareOperation("FixedPoints_", [IsObject, IsGroup, IsFunction]);
+DeclareOperation("_FixedPoints", [IsObject, IsGroup, IsFunction]);
