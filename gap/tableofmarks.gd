@@ -1,7 +1,8 @@
 #! @Description
 #! Given a group <A>G</A>, this computes the partial table of marks induced by the subgroups of <A>G</A> in <A>list</A>.
-#! @Returns matrix
-#! @Arguments list, G
+#! It will test the supplied subgroups for conjugacy. Passing `false` as the optional third argument <A>skipConjTest</A> will skip this test.
+#! @Returns the desired section of the table of marks as a matrix.
+#! @Arguments list, G, [sikpConjTest]
 #! @ChapterInfo subgroupladders, tom
 DeclareGlobalFunction( "TableOfMarksPartial" );
 

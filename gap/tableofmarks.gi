@@ -1,27 +1,84 @@
 ## Given a group G, this computes the partial table of marks induced by the subgroups of G in list.
 InstallGlobalFunction(TableOfMarksPartial,
-function(list, G)
+function(arg)
 	local
+		list,        # list of subgroups corresponding to the desired section of the tom
+		G,           # parent group
+		skipConjTest,# whether to test arguments for conjugacy
 		n,           # length of list
-		table,       # partial table of marks
+		reps,        # list of representatives of conjugacy classes of the subgroups in list
+		repMapping,  # mapping of the groups in list to their reps
+		table,       # partial table of marks for representatives
+		tom,         # partial table of marks
 		chain,       # subgroup chain
+		k,           # number of conjugacy classes in list
 		i,           # loop variable
 		j;           # loop variable
-	n := Length(list);
-	table := NullMat(n,n);
 
-	for i in [1..n] do
-		chain := AscendingChain(G, list[i]);
+	if Length(arg) = 2 then
+		list := arg[1];
+		G := arg[2];
+		skipConjTest := false;
+	else if Length(arg) = 3 then
+			list := arg[1];
+			G := arg[2];
+			skipConjTest := arg[3];
+		else
+			ErrorNoReturn("Invalid Arguments.\n");
+		fi;
+	fi;
+		
+
+	n := Length(list);
+	if (skipConjTest = false) then
+		reps := [];
+		repMapping := [];
+
+		# determine representatives of the supplied groups modulo conjugacy 
+		for i in [1..n] do
+			for j in [1..Length(reps)] do
+				if IsConjugate(G, list[i], reps[j]) then
+					repMapping[i] := j;
+					break;
+				fi;
+			od;
+			if not IsBound(repMapping[i]) then
+				Add(reps, list[i]);
+				repMapping[i] := Length(reps);
+			fi;
+		od;
+	else
+		reps := list;
+		repMapping := [1..n];
+	fi;
+
+	# first compute the section of the table of marks for the representatives.
+	k := Length(reps);
+	table := NullMat(k,k);
+	for i in [1..k] do
+		chain := AscendingChain(G, reps[i]);
 		for j in [1..i] do
 			if Length(chain) = 1 then
 				table[i][j] := 1;
 			else
-				table[i][j] := TableOfMarksEntryWithChain(G, ShallowCopy(chain), list[j]);
+				table[i][j] := TableOfMarksEntryWithChain(G, ShallowCopy(chain), reps[j]);
 			fi;
 		od;
 	od;
 
-	return table;
+	if (skipConjTest = true) then
+		return table;
+	fi;
+
+	# then copy the corresponding entries
+	tom := NullMat(n,n);
+	for i in [1..n] do
+		for j in [1..i] do
+			tom[i][j] := table[repMapping[i]][repMapping[j]];
+		od;
+	od;
+
+	return tom;
 end);
 
 ## Internal function called by TableOfMarksPartial, which computes iteratively one entry of the table of marks.
