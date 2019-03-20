@@ -194,7 +194,7 @@ function(arg)
 		orbs,          # orbits of G
 		directfactors, # direct factors of the direct product of transitive constituents of G
 		H,             # placeholder for group in subgroupladder
-		i,             # loop variable for direct factors
+		dirFactor,     # loop variable, integer representing a direct factor
 		tmpladder,     # placeholder for part of ladder
 		tmparg,        # placeholder for arguments on SubgroupLadder... variants calls
 		step,          # loop variable over records of tmpladder 
@@ -219,11 +219,11 @@ function(arg)
 	ladder[1].LastDirection := 0;
 
 	# by iteration construct ladder for each transitive direct factor
-	for i in [1..Length(directfactors)] do
-		tmparg := [directfactors[i], refine];
+	for dirFactor in [1..Length(directfactors)] do
+		tmparg := [directfactors[dirFactor], refine];
 		tmpladder := CallFuncList(SubgroupLadderForTransitive, tmparg);
 		for step in tmpladder{[2..Length(tmpladder)]} do
-			directfactors[i] := step.Group;
+			directfactors[dirFactor] := step.Group;
 			H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
 			Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
 		od;
@@ -292,7 +292,7 @@ function(arg)
 		tmpladder,     # placeholder for part of ladder
 		tmparg,        # placeholder for arguments on SubgroupLadderForYoungGroup call
 		directfactors, # direct factors of base group
-		i;             # loop variable for direct factors
+		dirFactor;     # loop variable, integer representing a direct factor
 
 	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
@@ -334,9 +334,9 @@ function(arg)
 	directfactors := List(WreathProductInfo(W).perms, g -> WreathProductInfo(W).groups[1]^g);
 	tmparg := [WreathProductInfo(W).groups[1], refine];
 	tmpladder := CallFuncList(SubgroupLadder, tmparg);
-	for i in [1..Length(directfactors)] do
+	for dirFactor in [1..Length(directfactors)] do
 		for step in tmpladder{[2..Length(tmpladder)]} do
-			directfactors[i] := step.Group^WreathProductInfo(W).perms[i];
+			directfactors[dirFactor] := step.Group^WreathProductInfo(W).perms[dirFactor];
 			H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
 			Add(ladder, rec(Group := H, LastDirection := step.LastDirection));
 		od;
