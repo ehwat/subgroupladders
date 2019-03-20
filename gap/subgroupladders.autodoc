@@ -39,7 +39,7 @@ Then the table of marks of <M>G</M> is the <M>n \times n</M> square matrix $M$ w
 is the number of fixed points of <M>U_i</M> on the right cosets of <M>U_j</M> in <M>G</M>.
 
 The complete table of marks can be computed from the subgroup lattice using GAPs builtin `TableOfMarks` function.
-However, one is often interesed in small portions of the table of marks, so we wish to construct an algorithm that efficiently computes sections of the table of marks.
+However, one is often interested in small portions of the table of marks, so we wish to construct an algorithm that efficiently computes sections of the table of marks.
 As a right coset <M>U_jx</M> is a fixed point in the action of <M>U_j</M> if and only if the double coset <M>U_jxU_i</M> is actually a right coset, one can compute entries of the table of marks using double cosets.
 In <Cite Key="MR1056150"/>, Schmalz computes double coset representatives using subgroup ladders.
 However, the resulting algorithm to compute the table of marks is not very efficient.
