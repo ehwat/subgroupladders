@@ -9,7 +9,7 @@ function(part)
 	if (IsDuplicateFree(Concatenation(part))) then
 		return YoungGroupFromPartitionNC(part);
 	fi;
-	ErrorNoReturn("The Argument must be a list of disjoint lists!\n");
+	ErrorNoReturn("The Argument must be a list of disjoint lists\n");
 end);
 
 InstallGlobalFunction( YoungGroupFromPartitionNC,
@@ -101,15 +101,15 @@ function(arg)
 	fi;
 
 	if (not IsPermGroup(G)) then
-		ErrorNoReturn("the first argument must be a permutation group!\n");
+		ErrorNoReturn("the first argument must be a permutation group\n");
 	fi;
 
 	if(Length(arg) = 2) then
 		if (not IsInt(n) or n <= 0) then
-			ErrorNoReturn("the second argument must be a positive integer!\n");
+			ErrorNoReturn("the second argument must be a positive integer\n");
 		fi;
 		if (n < LargestMovedPoint(G)) then
-			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!\n");
+			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G\n");
 		fi;
 		partition := List( Orbits(G, [1..n]), o -> List(o) );
 	else
@@ -117,7 +117,7 @@ function(arg)
 	fi;
 
 	if (YoungGroupFromPartitionNC(partition) <> G) then
-		ErrorNoReturn("the first argument must be a young subgroup!\n");
+		ErrorNoReturn("the first argument must be a young subgroup\n");
 	fi;
 
 	ladder := [rec(Group := G, LastDirection := 0)];
@@ -161,7 +161,7 @@ function(arg)
 
 	G := arg[1];
 	if (not IsPermGroup(G)) then
-		ErrorNoReturn("the first argument must be a permutation group!\n");
+		ErrorNoReturn("the first argument must be a permutation group\n");
 	fi;
 
 	if (Length(arg) = 1) then
@@ -171,16 +171,16 @@ function(arg)
 	fi;
 
 	if (not IsBool(refine)) then
-		ErrorNoReturn("the second argument must be a bool!\n");
+		ErrorNoReturn("the second argument must be a bool\n");
 	fi;
 
 	if (Length(arg) = 3) then
 		n := arg[3];
 		if (not IsInt(n) or n <= 0) then
-			ErrorNoReturn("the third argument must be an positive integer!\n");
+			ErrorNoReturn("the third argument must be an positive integer\n");
 		fi;
 		if (n < LargestMovedPoint(G)) then
-			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G!");
+			ErrorNoReturn("degree of desired parent symmetric group is smaller than the largest moved point of G");
 		fi;
 	fi;
 end);
@@ -259,7 +259,7 @@ function(arg)
 	fi;
 
 	if not IsTransitive(G) then
-		ErrorNoReturn("G must be a transitive group!\n");
+		ErrorNoReturn("G must be a transitive group\n");
 	fi;
 
 	orb := List(Orbits(G)[1]);
@@ -303,10 +303,10 @@ function(arg)
 	fi;
 
 	if not IsTransitive(G) then
-		ErrorNoReturn("G must be a transitive group!\n");
+		ErrorNoReturn("G must be a transitive group\n");
 	fi;
 	if IsPrimitive(G) then
-		ErrorNoReturn("G must be an imprimitive group!\n");
+		ErrorNoReturn("G must be an imprimitive group\n");
 	fi;
 	
 	# First embed the group into a wreath product on some block system of G
@@ -373,13 +373,13 @@ function(G)
 		o;            # order of the to constructed wreath product
 
 	if not IsPermGroup(G) then
-		ErrorNoReturn("G must be a permutation group!\n");
+		ErrorNoReturn("G must be a permutation group\n");
 	fi;
 	if not IsTransitive(G) then
-		ErrorNoReturn("G must be a transitive group!\n");
+		ErrorNoReturn("G must be a transitive group\n");
 	fi;
 	if IsPrimitive(G) then
-		ErrorNoReturn("G must be an imprimitive group!\n");
+		ErrorNoReturn("G must be an imprimitive group\n");
 	fi;
 
 	gens := GeneratorsOfGroup(G);
@@ -435,16 +435,16 @@ function(basefactor, topgroup, perms)
 		info;           # wreath product info of W
 
 	if not IsPermGroup(basefactor) then
-		ErrorNoReturn("the first argument must be a permutation group!\n");
+		ErrorNoReturn("the first argument must be a permutation group\n");
 	fi;
 	if not IsPermGroup(topgroup) then
-		ErrorNoReturn("the second argument must be a permutation group!\n");
+		ErrorNoReturn("the second argument must be a permutation group\n");
 	fi;
 	if Length(perms) < LargestMovedPoint(topgroup) then
-		ErrorNoReturn("the third argument must have at least length equal to the largest moved point of the topgroup!");
+		ErrorNoReturn("the third argument must have at least length equal to the largest moved point of the topgroup");
 	fi;
 	if not IsDuplicateFree(Concatenation(List(perms, p -> List(MovedPoints(basefactor),x -> x^p)))) then
-		ErrorNoReturn("The images of basefactor of the passed permutations are not pairwise disjoint!\n");
+		ErrorNoReturn("The images of basefactor of the passed permutations are not pairwise disjoint\n");
 	fi;
 
 	k := Length(perms);
