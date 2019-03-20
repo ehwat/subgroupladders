@@ -82,7 +82,7 @@ function(arg)
 		ladder,       # the ladder is a list containing triples [partition, lastDirection]
 		              # lastDirection is an integer -1, 1 or 0 depending on whether the last step in the chain was
 		              # down, up or the group was the first in the ladder.
-		partition,    # partition = (p_1, ..., p_k).
+		partition,    # partition = (p_1, ..., p_k) of young group G.
 		              # Every p_i is a list of positive integers such that the union of the p_i is disjoint.
 		k,            # size of current partition
 		p;            # loop variable, integer in p_k in partition.
