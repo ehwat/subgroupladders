@@ -148,7 +148,7 @@ function(arg)
 	return ladder;
 end);
 
-InstallGlobalFunction( SubgroupLadderCheckInput, 
+InstallGlobalFunction( _SubgroupLadderCheckInput, 
 function(arg)
 	local 
 		G,        # permutation group
@@ -201,7 +201,7 @@ function(arg)
 		tmparg,
 		directfactors;
 
-	CallFuncList(SubgroupLadderCheckInput,arg);
+	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -251,7 +251,7 @@ function(arg)
 		orb,
 		ladder;
 
-	CallFuncList(SubgroupLadderCheckInput,arg);
+	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -295,7 +295,7 @@ function(arg)
 		directfactors, # direct factors of base group
 		i;             # loop variable for direct factors
 
-	CallFuncList(SubgroupLadderCheckInput,arg);
+	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -396,7 +396,7 @@ function(G)
 		RemoveSet(gens_bar, ());
 		perms := List([1..k], i -> ());
 		for l in [2..k] do
-			perms[l] := SchreierTreeTrace_(G, B[1][1], B[l][1]);
+			perms[l] := _SchreierTreeTrace(G, B[1][1], B[l][1]);
 		od;
 
 		S1 := Stabilizer(G,B[1],OnSets);
@@ -487,7 +487,7 @@ function(basefactor, topgroup, perms)
 	return W;
 end);
 
-InstallGlobalFunction(SchreierTreeTrace_, 
+InstallGlobalFunction(_SchreierTreeTrace, 
 function(G, a, b)
 	local 
 		T,     # Schreier tree
