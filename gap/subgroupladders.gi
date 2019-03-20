@@ -316,7 +316,7 @@ function(arg)
 
 	# Next embed the top group of wreath product into a symmetric group
 	# Then go down from symmetric group to trivial group
-	# Construct the dual ladder for the whole wreath product
+	# Construct an anologue ladder for the whole wreath product by replacing the top group
 	tmpladder := SubgroupLadderForTransitive(WreathProductInfo(W).groups[2], refine);
 	H := tmpladder[Length(tmpladder)].Group;
 	p := List(Orbits(H)[1]);
@@ -330,7 +330,7 @@ function(arg)
 
 	# We have now reached the base group. 
 	# We know that the factors of the base group are conjugate by using perms of W
-	# Construct ladder for one factor and by iteration a dual ladder for base group
+	# Construct ladder for one factor and by iteration an anologue ladder for base group
 	directfactors := List(WreathProductInfo(W).perms, g -> WreathProductInfo(W).groups[1]^g);
 	tmparg := [WreathProductInfo(W).groups[1], refine];
 	tmpladder := CallFuncList(SubgroupLadder, tmparg);
