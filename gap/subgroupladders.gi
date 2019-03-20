@@ -9,7 +9,7 @@ function(part)
 	if (IsDuplicateFree(Concatenation(part))) then
 		return YoungGroupFromPartitionNC(part);
 	fi;
-	ErrorNoReturn("The Argument must me a list of disjoint lists!\n");
+	ErrorNoReturn("The Argument must be a list of disjoint lists!\n");
 end);
 
 InstallGlobalFunction( YoungGroupFromPartitionNC,
