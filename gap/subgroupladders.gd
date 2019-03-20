@@ -33,18 +33,8 @@
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadder");
 
-#! @Description
-#! This is an internal function called by `SubgroupLadder` to validate the input.
-#! @Returns nothing if the input is correct, otherwise it `ErrorNoReturn`s.
-#! @Arguments G [,refine] [,n]
-#! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadderCheckInput");
 
-#! @Description
-#! This method is called when the index may be critical high in a ladder, whereas <A>G</A> is a subgroup of <A>H</A>.
-#! @Returns A subgroup ladder (in fact an ascending chain) from <A>H</A> to <A>G</A>. If `refine` is true, this is established with `AscendingChain`, otherwise this is the "trivial" chain.
-#! @Arguments G, H, refine
-#! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadderRefineStep");
 
 #! @Description
@@ -154,9 +144,4 @@ DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "WreathProductWithoutRenaming");
 
-#! @Description
-#! Use the Schreier tree in the stabilizer chain of G to trace some element g in G s.t. a^g=b
-#! @Returns
-#! @Arguments G, a, b
-#! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SchreierTreeTrace_");
