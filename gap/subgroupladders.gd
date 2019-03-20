@@ -33,8 +33,11 @@
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadder");
 
+# This is an internal function called by `SubgroupLadder` to validate the input.
 DeclareGlobalFunction( "_SubgroupLadderCheckInput");
 
+# This method is called when the index may be critical high in a ladder
+# It possibly refines the ladder with an AscendingChain
 DeclareGlobalFunction( "_SubgroupLadderRefineStep");
 
 #! @Description
@@ -144,4 +147,6 @@ DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "WreathProductWithoutRenaming");
 
+# This is an internal function that uses the Schreier tree in the stabilizer chain to 
+# compute a group element in a permutation group that maps some point to another one.
 DeclareGlobalFunction( "_SchreierTreeTrace");
