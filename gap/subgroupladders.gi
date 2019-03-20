@@ -197,7 +197,8 @@ function(arg)
 		tmpladder,
 		step,
 		tmparg,
-		directfactors;
+		directfactors,
+		movedPoints;
 
 	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
@@ -205,6 +206,22 @@ function(arg)
 		refine := false;
 	else
 		refine := arg[2];
+	fi;
+
+	# catch the trivial case
+	if IsNaturalSymmetricGroup(G) then
+		ladder := [ rec(Group := G, LastDirection := 0) ];
+		if (Length(arg) <> 3) then
+			return ladder;
+		else
+			n := arg[3];
+			movedPoints := List(MovedPoints(G));
+			for i in Difference([1..n], movedPoints) do;
+				Add(movedPoints, i);
+				Add(ladder, rec(Group := SymmetricGroup(movedPoints), LastDirection := 1));
+			od;
+			return ladder;
+		fi;
 	fi;
 
 	# embed G into the direct product of the transitive constituents of G.
