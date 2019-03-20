@@ -35,10 +35,12 @@ function( list )
 		p,           # Moved Points of G
 		P,           # the direct product we will return
 		generators,  # the generators of P.
-		grps,        # record entry of info.
-		olds,        # record entry of info.
-		news,        # record entry of info.
-		perms,       # record entry of info.
+		grps,        # record entry of info, direct factor groups
+		olds,        # record entry of info, old moved points of direct factor in grps
+		news,        # record entry of info, new moved points of direct factor, 
+		             # i.e. the moved points of the copies in the direct product
+		perms,       # record entry of info, permutations, such that the conjugate group 
+		             # of direct factor group in grps equals the copy in the direct product
 		info;        # record for the DirectProductInfo of Y.
 
 	# Initialize the variables.
