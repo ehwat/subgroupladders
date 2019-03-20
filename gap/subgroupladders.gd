@@ -15,8 +15,8 @@
 #! permutation groups on the orbits, possible refined using `AscendingChain`.
 #! Then ladders for each of the direct factors
 #! are constructed and put together yielding a letter up to the Young subgroup
-#! corresponding to the orbits. This then is embedded into the wanted parent
-#! symmetric group using Schmalz's ladder, see `SubgroupLadderForYoungSubgroup`.
+#! corresponding to the orbits. This then is embedded into the parent
+#! symmetric group specified above using Schmalz's ladder, see `SubgroupLadderForYoungSubgroup`.
 #! If the transitive constituents are primitive, they will be embedded into
 #! the symmetric group on the orbit directly or using `AscendingChain`, depending on
 #! wether the `refine` option was used. For more details on the ladder constructed
@@ -24,7 +24,8 @@
 #! `SubgroupLadderForImprimitive`.
 #!
 #! @InsertChunk exampleSubgroupLadder
-#! @Returns A subgroup ladder from <A>G</A> to the wanted symmetric group.
+#! @Returns A subgroup ladder from <A>G</A> to the symmetric group on the moved points
+#! or on <M>[1..n]</M>, when <A>n</A> is passed.
 #! The output is a list of records with a `Group` and a `LastDirection` field.
 #! The `LastDirection` entry is set to 1, if the last step in the ladder was an up-step,
 #! to -1, if the last step was a down-step and to 0 for the first entry.
@@ -56,7 +57,8 @@ DeclareGlobalFunction( "SubgroupLadderRefineStep");
 #! We can guarantee that all
 #! the indices are at most the degree <M>n</M> of the permutation group.
 #! Details on the ladder can be found in <Cite Key="MR1056150" Where="Satz 3.1.1"/>.
-#! @Returns A subgroup ladder from <A>G</A> to the wanted symmetric group.
+#! @Returns A subgroup ladder from <A>G</A> to the symmetric group on the moved points
+#! or on <M>[1..n]</M>, when <A>n</A> is passed.
 #! The output is a list of records with a `Group` and a `LastDirection` field.
 #! The `LastDirection` entry is set to 1, if the last step in the ladder was an up-step,
 #! to -1, if the last step was a down-step and to 0 for the first entry.
