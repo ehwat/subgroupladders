@@ -27,31 +27,31 @@ end);
 ## Internal function called by TableOfMarksPartial, which computes iteratively one entry of the table of marks.
 ## Let G be the parent group of the table of marks, i.e.
 ## U,V <= G, where chain is an ascending subgroup chain of the form V <= ... <= B <= A <= ... <= G.
-## By iteration we compute the fixed points of R[G : V] with resprect to the action by right multiplication of U.
+## By iteration we compute the fixed points of R[G : V] with respect to the action by right multiplication of U.
 InstallGlobalFunction(TableOfMarksEntryWithChain,
 function(G, chain, U)
 	local 
-		A,          # subgroup in chain
-		B,          # subgroup in chain
-		RAB,        # cosets of B in A
-		Omega,      # fixed points of RGA
-		x,          # loop variable, fixed point, element of Omega
-		Delta,      # the split cosets of x in Omega
-		Gamma;      # the fixed points in Delta
+		groupA,                    # subgroup in chain
+		groupB,                    # subgroup in chain
+		cosetsBinA,                # right cosets of B in A
+		fixedPointsInCosetsOfAinG, # fixed points of U in the right cosets of A in G
+		fixedPointInCosetsOfAinG,  # loop variable, fixed point, element of fixedPointsInCosetsOfAinG
+		splitCosets,               # the split cosets of fixedPointInCosetsOfAinG as cosets of B in G
+		fixedPointsInCosetsOfBinG; # the fixed points in splitCosets
 
-	Omega := ShallowCopy( RightCosets(G, G) );
+	fixedPointsInCosetsOfAinG := ShallowCopy( RightCosets(G, G) );
 	while Length(chain) >= 2 do
-		A := Remove(chain);
-		B := chain[Length(chain)];
-		RAB := RightCosets(A, B);
-		Gamma := [];
-		for x in Omega do
-			Delta := List(RAB, c -> RightCoset(B, Representative(c)*Representative(x)));
-			Append(Gamma, _FixedPoints(Delta, U, OnRight));
+		groupA := Remove(chain);
+		groupB := chain[Length(chain)];
+		cosetsBinA := RightCosets(groupA, groupB);
+		fixedPointsInCosetsOfBinG := [];
+		for fixedPointInCosetsOfAinG in fixedPointsInCosetsOfAinG do
+			splitCosets := List(cosetsBinA, c -> RightCoset(groupB, Representative(c)*Representative(fixedPointInCosetsOfAinG)));
+			Append(fixedPointsInCosetsOfBinG, _FixedPoints(splitCosets, U, OnRight));
 		od;
-		Omega := ShallowCopy(Gamma);
+		fixedPointsInCosetsOfAinG := ShallowCopy(fixedPointsInCosetsOfBinG);
 	od;
-	return Length(Omega);
+	return Length(fixedPointsInCosetsOfAinG);
 end);
 
 ## Given a group G with an action act on an object obj,
@@ -63,15 +63,15 @@ true,
 0,
 function(obj, G, act)
 	local 
-		gens,    # generators of G
-		res,     # fixed points of obj
-		x;       # loop variable, element of obj
+		gens,        # generators of G
+		fixedPoints, # fixed points of obj
+		x;           # loop variable, element of obj
 	gens := GeneratorsOfGroup(G);
-	res := [];
+	fixedPoints := [];
 	for x in obj do
 		if ForAll(gens, g-> act(x, g) = x) then
-			Add(res, x);
+			Add(fixedPoints, x);
 		fi;
 	od;
-	return res;
+	return fixedPoints;
 end);
