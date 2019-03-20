@@ -146,7 +146,7 @@ function(arg)
 	return ladder;
 end);
 
-InstallGlobalFunction( SubgroupLadderCheckInput, 
+InstallGlobalFunction( _SubgroupLadderCheckInput, 
 function(arg)
 	local 
 		G,        # permutation group
@@ -199,7 +199,7 @@ function(arg)
 		tmparg,
 		directfactors;
 
-	CallFuncList(SubgroupLadderCheckInput,arg);
+	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -214,7 +214,7 @@ function(arg)
 	orbs := Orbits(G);
 	directfactors := List(orbs, o->Group(DuplicateFreeList(List(gens, x->RestrictedPerm(x, o)))));
 	H := DirectProductPermGroupsWithoutRenamingNC(directfactors);
-	ladder := SubgroupLadderRefineStep(G, H, refine);
+	ladder := _SubgroupLadderRefineStep(G, H, refine);
 	ladder[1].LastDirection := 0;
 
 	# by iteration construct ladder for each transitive direct factor
@@ -249,7 +249,7 @@ function(arg)
 		orb,
 		ladder;
 
-	CallFuncList(SubgroupLadderCheckInput,arg);
+	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -268,9 +268,9 @@ function(arg)
 		ladder := CallFuncList(SubgroupLadderForImprimitive, arg);
 	else
 		if Length(arg) = 3 then
-			ladder := SubgroupLadderRefineStep(G, SymmetricGroup(arg[3]), refine );
+			ladder := _SubgroupLadderRefineStep(G, SymmetricGroup(arg[3]), refine );
 		else
-			ladder := SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
+			ladder := _SubgroupLadderRefineStep(G, SymmetricGroup(orb), refine );
 		fi;
 	fi;
 
@@ -293,7 +293,7 @@ function(arg)
 		directfactors, # direct factors of base group
 		i;             # loop variable for direct factors
 
-	CallFuncList(SubgroupLadderCheckInput,arg);
+	CallFuncList(_SubgroupLadderCheckInput,arg);
 	G := arg[1];
 	if (Length(arg) = 1) then
 		refine := false;
@@ -310,7 +310,7 @@ function(arg)
 	
 	# First embed the group into a wreath product on some block system of G
 	W := WreathProductSupergroupOfImprimitive(G);
-	ladder := SubgroupLadderRefineStep( G, W, refine);
+	ladder := _SubgroupLadderRefineStep( G, W, refine);
 	ladder[1].LastDirection := 0;
 
 	# Next embed the top group of wreath product into a symmetric group
@@ -394,7 +394,7 @@ function(G)
 		RemoveSet(gens_bar, ());
 		perms := List([1..k], i -> ());
 		for l in [2..k] do
-			perms[l] := SchreierTreeTrace_(G, B[1][1], B[l][1]);
+			perms[l] := _SchreierTreeTrace(G, B[1][1], B[l][1]);
 		od;
 
 		S1 := Stabilizer(G,B[1],OnSets);
@@ -485,7 +485,7 @@ function(basefactor, topgroup, perms)
 	return W;
 end);
 
-InstallGlobalFunction(SchreierTreeTrace_, 
+InstallGlobalFunction(_SchreierTreeTrace, 
 function(G, a, b)
 	local 
 		T,     # Schreier tree
@@ -513,7 +513,7 @@ function(G, a, b)
 	return g * h^(-1);
 end);
 
-InstallGlobalFunction( SubgroupLadderRefineStep,
+InstallGlobalFunction( _SubgroupLadderRefineStep,
 function(G, H, refine)
 	local
 		ladder;

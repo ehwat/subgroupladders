@@ -33,9 +33,9 @@
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "SubgroupLadder");
 
-DeclareGlobalFunction( "SubgroupLadderCheckInput");
+DeclareGlobalFunction( "_SubgroupLadderCheckInput");
 
-DeclareGlobalFunction( "SubgroupLadderRefineStep");
+DeclareGlobalFunction( "_SubgroupLadderRefineStep");
 
 #! @Description
 #! Given a Young group <A>G</A>, this will compute a subgroup ladder
@@ -144,4 +144,4 @@ DeclareGlobalFunction( "DirectProductPermGroupsWithoutRenamingNC");
 #! @ChapterInfo subgroupladders, subgroupladders
 DeclareGlobalFunction( "WreathProductWithoutRenaming");
 
-DeclareGlobalFunction( "SchreierTreeTrace_");
+DeclareGlobalFunction( "_SchreierTreeTrace");
