@@ -305,7 +305,7 @@ function(arg)
 	if not IsTransitive(G) then
 		ErrorNoReturn("G must be a transitive group\n");
 	fi;
-	if IsPrimitive(G) then
+	if IsPrimitive(G, List(Orbits(G)[1])) then
 		ErrorNoReturn("G must be an imprimitive group\n");
 	fi;
 	
