@@ -367,7 +367,6 @@ function(G)
 		gens_bar,     # gens induce permutations of block system B, induce generators of top group
 		perms,        # list of translations from block B[1] into block B[i], 
 		              # i.e. perms[i] is an element in G s.t. B[1]^perms[i] = B[i]
-		l,            # loop variable for construction of t
 		S1,           # stabilizer group of B[1]
 		SB1,          # S1 induces a permutation group on B[1]
 		o;            # order of the to constructed wreath product
@@ -393,10 +392,8 @@ function(G)
 		gens_bar := List(gens, g -> PermList(List([1..k], i -> PositionProperty(B, b -> B[i][1]^g in b ))));
 		gens_bar := Set(gens_bar);
 		RemoveSet(gens_bar, ());
-		perms := List([1..k], i -> ());
-		for l in [2..k] do
-			perms[l] := _SchreierTreeTrace(G, B[1][1], B[l][1]);
-		od;
+		perms := List([1..k], i -> _SchreierTreeTrace(G, B[1][1], B[i][1]);
+		perms[1] := ();
 
 		S1 := Stabilizer(G,B[1],OnSets);
 		SB1 := Set(List(GeneratorsOfGroup(S1), g -> RestrictedPerm(g,B[1])));
