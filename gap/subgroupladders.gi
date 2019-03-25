@@ -350,8 +350,8 @@ function(G)
 	fi;
 
 	gens := GeneratorsOfGroup(G);
-	order := infinity;
-	W := Group(());
+	order := Factorial(NrMovedPoints(G));
+	W := SymmetricGroup(MovedPoints(G));
 	allblocks := AllBlocks(G);
 
 	for repBlock in allblocks do
