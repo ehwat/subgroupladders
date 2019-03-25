@@ -12,6 +12,8 @@ function(arg)
 		gens,          # generators of G
 		orbs,          # orbits of G
 		directFactors, # direct factors of the direct product of transitive constituents of G
+		orbit,         # loop variable, one orbit of G
+		gensDirFactor, # loop variable, generators of a direct factor
 		H,             # placeholder for group in subgroupladder
 		dirFactor,     # loop variable, integer representing a direct factor
 		tmpLadder,     # placeholder for part of ladder
@@ -49,7 +51,12 @@ function(arg)
 	# hence we embed a subdirect product into a direct product. Index may be large.
 	gens := GeneratorsOfGroup(G);
 	orbs := Orbits(G);
-	directFactors := List(orbs, o->Group(DuplicateFreeList(List(gens, x->RestrictedPerm(x, o)))));
+	directFactors := [];
+	for orbit in orbs do
+		gensDirFactor := Set(List(gens, x->RestrictedPerm(x, orbit)));
+		RemoveSet(gensDirFactor ,());
+		Add(directFactors,Group(gensDirFactor));
+	od;
 	H := DirectProductPermGroupsWithoutRenamingNC(directFactors);
 	ladder := _SubgroupLadderRefineStep(G, H, refine);
 	ladder[1].LastDirection := 0;
