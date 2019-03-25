@@ -325,19 +325,19 @@ end);
 InstallGlobalFunction(WreathProductSupergroupOfImprimitive,
 function(G)
 	local
-		gens,         # generators of group G
-		order,        # order of smallest wreath product
-		W,            # smallest wreath product
-		allblocks,    # representants of all possible block systems of G
-		repBlock,     # loop variable, representant in allblocks of some block system
-		B,            # block system of G for the represenant rep
-		k,            # length of block system B
-		gens_bar,     # gens induce permutations of block system B, induce generators of top group
-		perms,        # list of translations from block B[1] into block B[i],
-		              # i.e. perms[i] is an element in G s.t. B[1]^perms[i] = B[i]
-		S1,           # stabilizer group of B[1]
-		SB1,          # S1 induces a permutation group on B[1]
-		o;            # order of the to constructed wreath product
+		gens,           # generators of group G
+		order,          # order of smallest constructed wreath product
+		W,              # smallest constructed wreath product as described in documentation in .gd file
+		allBlocks,      # representants of all possible block systems of G
+		repBlock,       # loop variable, representant in allBlocks of some block system
+		blockSystem,    # block system of G for the represenant rep
+		k,              # length of block system
+		gensBlockPerms, # gens induce permutations of block system, these will be generators of top group
+		perms,          # list of translations from block 1 into block i,
+		                # i.e. perms[i] is an element in G s.t. blockSystem[1]^perms[i] = blockSystem[i]
+		gensStabBlock1, # generators of stabilizer group of block 1 induce a permutation group on block 1,
+		                # these will the generators of base factor group
+		o;              # order of the to constructed wreath product
 
 	if not IsPermGroup(G) then
 		ErrorNoReturn("G must be a permutation group\n");
@@ -352,30 +352,29 @@ function(G)
 	gens := GeneratorsOfGroup(G);
 	order := Factorial(NrMovedPoints(G));
 	W := SymmetricGroup(MovedPoints(G));
-	allblocks := AllBlocks(G);
+	allBlocks := AllBlocks(G);
 
-	for repBlock in allblocks do
-		B := Orbit(G, repBlock, OnSets);
-		k := Length(B);
-		gens_bar := List(gens, g -> PermList(List([1..k], i -> PositionProperty(B, b -> B[i][1]^g in b ))));
-		gens_bar := Set(gens_bar);
-		RemoveSet(gens_bar, ());
-		perms := List([1..k], i -> _SchreierTreeTrace(G, B[1][1], B[i][1]));
+	for repBlock in allBlocks do
+		blockSystem := Orbit(G, repBlock, OnSets);
+		k := Length(blockSystem);
+		gensBlockPerms := List(gens, g -> PermList(List([1..k], i -> PositionProperty(blockSystem, b -> blockSystem[i][1]^g in b ))));
+		gensBlockPerms := Set(gensBlockPerms);
+		RemoveSet(gensBlockPerms, ());
+		perms := List([1..k], i -> _SchreierTreeTrace(G, blockSystem[1][1], blockSystem[i][1]));
 		perms[1] := ();
 
-		S1 := Stabilizer(G,B[1],OnSets);
-		SB1 := Set(List(GeneratorsOfGroup(S1), g -> RestrictedPerm(g,B[1])));
-		RemoveSet(SB1, ());
-		if (IsEmpty(SB1)) then
-			Add(SB1, ());
+		gensStabBlock1 := Set(List(GeneratorsOfGroup(Stabilizer(G,blockSystem[1],OnSets)), g -> RestrictedPerm(g,blockSystem[1])));
+		RemoveSet(gensStabBlock1, ());
+		if (IsEmpty(gensStabBlock1)) then
+			Add(gensStabBlock1, ());
 		fi;
 
-		o := Order(Group(SB1))^k*Order(Group(gens_bar));
+		o := Order(Group(gensStabBlock1))^k*Order(Group(gensBlockPerms));
 		if o >= order then
 			continue;
 		fi;
 		order := o;
-		W := WreathProductWithoutRenaming(Group(SB1), Group(gens_bar), perms);
+		W := WreathProductWithoutRenaming(Group(gensStabBlock1), Group(gensBlockPerms), perms);
 	od;
 
 	return W;
